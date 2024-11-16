@@ -1,9 +1,7 @@
 ---
 weight: 1
 bookCollapseSection: true
-bookFlatSection: true
 title: "环境安装"
-commentsId: 1 
 ---
 
 ## 环境安装
