@@ -5,6 +5,8 @@ title: "在 sel4 上运行宏内核"
 commentsId: 1 
 ---
 
+# 在 sel4 上运行宏内核
+
 seL4 作为完成了形式化验证的内核，其安全性和可靠性得到了一定程度上的保证。在近年来安全问题频发的场景下，用 seL4 构建适配更多场景的内核的需求也逐渐强烈起来。目前该方面已有一定的工作成果，本文仅介绍其中两个特定方向：
 
 - 以 seL4 作为 hypervisor，在其上构建 guest OS：[Virtualization on seL4](https://docs.sel4.systems/projects/virtualization/) 中描述了 seL4 为了支持虚拟化而封装的库。在这些库的作用下，可以完成基本的虚拟化支持。但目前的虚拟化基本仍然是以硬编码来确定 guestOS 的种类与数量的，并不十分灵活。

@@ -9,6 +9,8 @@ weight: 1
 # bookSearchExclude: false
 ---
 
+# 多内核并存隔离实现
+
 我们期望能在用户态同时运行数个完整内核，其通过函数调用、IPC 等形式向基座 seL4 申请资源，或由 seL4 基座转发给驱动设备任务来进行处理。这些内核彼此应当是互相隔离的，通过 IPC 的方式进行交互。
 
 为了实现这一点，我们应当理解 seL4/reL4 的内存分配模型。以 seL4 为例，root task 在完成初始化之后，会将 untyped_memory 交给用户程序使用，用户程序自身在完成任务的时候可以利用自身所分配到的 untyped_memory 来申请分配 capability。
