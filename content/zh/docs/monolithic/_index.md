@@ -1,5 +1,5 @@
 ---
-weight: 1
+weight: 2
 bookCollapseSection: true
 title: "在 sel4 上运行宏内核"
 commentsId: 1 

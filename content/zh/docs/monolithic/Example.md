@@ -1,6 +1,6 @@
 ---
 title: "实例和测试"
-weight: 1
+weight: 3
 # bookFlatSection: false
 # bookToc: true
 # bookHidden: false
