@@ -21,7 +21,7 @@ rel4 目前本质上是 seL4 链接的一个静态库，因此二者可以在同
 如果你不想了解细节，可以执行脚本安装。执行脚本安装前，最好配置好科学上网，否则无法保证执行成功。
 
 ```
-curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/croakexciting/rel4_doc/main/scripts/install.sh | bash
+curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/rel4team/build-scripts/refs/heads/mi_dev/scripts/install.sh | bash
 ```
 
 如果因为网络原因，无法访问 raw.githubusercontent，可以 clone 后执行
