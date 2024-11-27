@@ -1,6 +1,10 @@
 ---
 title: "Rel4 Book 部署说明"
-date: 2024-11-14T15:44:03+08:00
+weight: 99
+# bookFlatSection: false
+# bookToc: true
+# bookHidden: false
+# bookCollapseSection: false
 # bookComments: false
 # bookSearchExclude: false
 ---
@@ -73,66 +77,6 @@ defaultContentLanguageInSubdir = true
   name = "Github"
   url = "https://github.com/rel4team"
   weight = 20
-```
-
-- Hugo Book 特有配置
-
-```
-[params]
-  # (Optional, default light) Sets color theme: light, dark or auto.
-  # Theme 'auto' switches between dark and light modes based on browser/os preferences
-  BookTheme = 'light'
-
-  # (Optional, default true) Controls table of contents visibility on right side of pages.
-  # Start and end levels can be controlled with markup.tableOfContents setting.
-  # You can also specify this parameter per page in front matter.
-  BookToC = true
-
-  # (Optional, default docs) Specify section of content to render as menu
-  # You can also set value to "*" to render all sections to menu
-  BookSection = 'docs'
-
-  # Set source repository location.
-  # Used for 'Last Modified' and 'Edit this page' links.
-  BookRepo = 'https://github.com/rel4team/rel4team.github.io'
-
-  # Specifies commit portion of the link to the page's last modified commit hash for 'doc' page
-  # type.
-  # Required if 'BookRepo' param is set.
-  # Value used to construct a URL consisting of BookRepo/BookCommitPath/<commit-hash>
-  # Github uses 'commit', Bitbucket uses 'commits'
-  BookCommitPath = 'commit'
-
-  # Enable 'Edit this page' links for 'doc' page type.
-  # Disabled by default. Uncomment to enable. Requires 'BookRepo' param.
-  # Path must point to the site directory.
-  BookEditPath = 'edit/main'
-
-  # (Optional, default January 2, 2006) Configure the date format used on the pages
-  # - In git information
-  # - In blog posts
-  BookDateFormat = 'Jan 2, 2006'
-
-  # (Optional, default true) Enables search function with flexsearch,
-  # Index is built on fly, therefore it might slowdown your website.
-  # Configuration for indexing can be adjusted in i18n folder per language.
-  BookSearch = true
-
-  # (Optional, default true) Enables comments template on pages
-  # By default partials/docs/comments.html includes Disqus template
-  # See https://gohugo.io/content-management/comments/#configure-disqus
-  # Can be overwritten by same param in page frontmatter
-  BookComments = true
-
-  # /!\ This is an experimental feature, might be removed or changed at any time
-  # (Optional, experimental, default false) Enables portable links and link checks in markdown pages.
-  # Portable links meant to work with text editors and let you write markdown without {{< relref >}} shortcode
-  # Theme will print warning if page referenced in markdown does not exists.
-  BookPortableLinks = true
-
-  # /!\ This is an experimental feature, might be removed or changed at any time
-  # (Optional, experimental, default false) Enables service worker that caches visited pages and resources for offline use.
-  BookServiceWorker = true
 ```
 
 更多的 Hugo 配置可以参考 [Hugo Config](https://gohugo.io/getting-started/configuration/), 但通常我们不用了解这么多配置，如果只想搭一个 Blog 网站，只需要找到 Theme，根据 Theme 的说明进行配置即可。
