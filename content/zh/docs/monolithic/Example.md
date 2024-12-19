@@ -1,6 +1,6 @@
 ---
 title: "实例和测试"
-weight: 3
+weight: 4
 # bookFlatSection: false
 # bookToc: true
 # bookHidden: false
@@ -32,11 +32,6 @@ fn main(ipc_buffer: IPCBuffer) -> sel4::Result<!> {
     })
     .expect("failed to create net driver");
 
-    debug_println!(
-        "[Net Thread] Net device mac address: {:?}",
-        virtio_net.mac_address().0
-    );
-
     smoltcp_impl::init(virtio_net);
   
     // Modify here
@@ -48,7 +43,7 @@ fn main(ipc_buffer: IPCBuffer) -> sel4::Result<!> {
 
 
 
-我们提供了两个测试程序，分别测试作为 client 和 server 的表现，相关代码位于 [test_net](../crates/net-thread/src/smoltcp_impl/test.rs)
+我们提供了两个测试程序，分别测试作为 client 和 server 的表现，相关代码位于 [test_net](https://github.com/Azure-stars/rust-root-task-demo-mi-dev/blob/main/crates/net-thread/src/smoltcp_impl/test.rs)
 
 - client
 
@@ -104,7 +99,7 @@ fn main(ipc_buffer: IPCBuffer) -> sel4::Result<!> {
   测试代码同上，将 IPC 入口修改为 test_server 入口即可。在运行内核之后，我们会在主机的 6379 号端口上启动 qemu，并且监听来自外部的网络请求。此时可以另开一个终端，运行如下指令：
 
   ```shell
-  $ echo "Hello, World!" | nc localhost 6378
+  $ echo "Hello, World!" | nc localhost 6379
   ```
 
   即可观测到微内核的 server 接收到了请求，并且做出了响应。
@@ -115,14 +110,13 @@ fn main(ipc_buffer: IPCBuffer) -> sel4::Result<!> {
 
 > 相关 commit 为：[网络模块实现](https://github.com/Azure-stars/rust-root-task-demo-mi-dev/commit/aae140336bd3ecef54fc1943f4223b220289f1f0)
 
-目前的宏内核用户程序进行了对应的网络测试，详见 [test-thread](../crates/test-thread)。在这里他通过 vsyscall handler 新建了一个 socket，并且按照 syscall 的语义，开始监听指定的端口并响应对应的请求。即我们利用宏内核的 syscall 建立了一个 server。在启动之后我们可以像网络模块的本地测试一样，通过运行如下指令：
+目前的宏内核用户程序进行了对应的网络测试，详见 [test-thread](https://github.com/Azure-stars/rust-root-task-demo-mi-dev/tree/main/crates/test-thread/src)。在这里他通过 vsyscall handler 新建了一个 socket，并且按照 syscall 的语义，开始监听指定的端口并响应对应的请求。即我们利用宏内核的 syscall 建立了一个 server。在启动之后我们可以像网络模块的本地测试一样，通过运行如下指令：
 
 ```rust
-$ echo "Hello, World!" | nc localhost 6378
+$ echo "Hello, World!" | nc localhost 6379
 ```
 
 来对宏内核的 Server 进行访问测试。
-
 
 
 ## 3. 多个宏内核并存测试
