@@ -56,6 +56,7 @@ croak@rel4_dev_env:/workspace
 ```
     # -e HTTP_PROXY=http://127.0.0.1:7890 \
     # -e HTTPS_PROXY=http://127.0.0.1:7890 \
+    # -e ALL_PROXY=http://127.0.0.1:7890 \ 
     # You can add proxy setting in docker run if you encounter network problem
 
     docker run -itd \
@@ -67,6 +68,7 @@ croak@rel4_dev_env:/workspace
         -v $workspace:/workspace \
         -e HTTP_PROXY=http://127.0.0.1:7890 \
         -e HTTPS_PROXY=http://127.0.0.1:7890 \
+        -e ALL_PROXY=http://127.0.0.1:7890 \
         -w /workspace \
         --hostname rel4_dev_env \
         --network host \
@@ -76,6 +78,14 @@ croak@rel4_dev_env:/workspace
 ```
 
 其中 http://127.0.0.1:7890 换成你的 proxy server 地址
+
+如果加入代理后出现下载东西时出现 403，请尝试更改 proxy 为 socks5 协议(请确保指定的端口支持 socks5)，例
+
+```
+    # -e HTTP_PROXY=http://127.0.0.1:7890 \
+    # -e HTTPS_PROXY=http://127.0.0.1:7890 \
+    # -e ALL_PROXY=socks5://127.0.0.1:7890 \ 
+```
 
 ## 3 使用编译环境
 
