@@ -116,3 +116,20 @@ git clone https://github.com/Huzhiwen1208/rust-root-task-demo.git
 cd rust-root-task-demo
 make run
 ```
+
+## 常见问题
+
+1. 在 fedora (SELinux)下去适用无法直接使用，需要手动调整文件系统的权限，或者在 -v 后添加 ':z' ，需要添加帮助文档
+2. 在 docker 中需要代理时 仅仅添加 HTTP_PROXY 和 HTTPS_PROXY 并不能解决问题，需要添加 ALL_RPOXY，且优先使用 SOCKS5 协议。如果在系统上可以使用 TUN 模式，创建一张虚拟网卡，可以不用在 docker 中设置 PROXY 参数
+3. 运行时 cargo 报版本问题：
+![Image](https://github.com/user-attachments/assets/4a8bfeb4-01d2-4d3b-9874-81a04ff60857)
+
+这个是做完跟hzw聊的时候的问题，需要执行 `cargo update home@0.5.11 --precise 0.5.5`，锁回原来版本就可以了
+
+4. `init-build.sh` 运行时出错
+
+一般是 `easy-settings.cmake` 文件有问题，它必须是 `projects/sel4test/easy-settings.cmake` 目录下的软连接
+
+5. cmake 编译时出现符号问题
+
+尝试重新编译，且需要确认 `kernel`(远程项目名`seL4+c+impl`) `root-task-demo`(远程项目名`rust-root-task-demo-mi-dev`) `rel4_kernel`(远程项目名`mi-dev-integral-rel4`) 的分支均为 `mi-dev`
