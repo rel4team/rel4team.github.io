@@ -1,3 +1,11 @@
+---
+weight: 2
+bookCollapseSection: false
+title: seL4 IPC机制
+commentsId: 1
+---
+
+# seL4 IPC机制
 我们知道seL4脱胎于 L4 kernel，而IPC作为微内核至关重要的基础架构，决定了整个系统的性能瓶颈。seL4在继承L4的同步IPC的基础上，对其做了一定的改进和扩展。本文第一节探讨seL4在IPC方面对L4的扩展与改进。第二节总结seL4中的IPC框架。
 
 ### 1. seL4 vs. L4

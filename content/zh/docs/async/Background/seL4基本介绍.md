@@ -1,3 +1,9 @@
+---
+weight: 1
+bookCollapseSection: false
+title: seL4基本介绍
+commentsId: 1
+---
 # seL4基本介绍
 
 seL4是一款由澳大利亚国防科学技术组织（DSTO）开发的基于L4微内核的开源操作系统内核，它以形式化验证确保的高度安全性和性能而闻名。从微内核的架构角度来看，seL4展现出了微内核架构的核心优势和特点。
