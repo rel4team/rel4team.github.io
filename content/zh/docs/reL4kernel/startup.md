@@ -396,4 +396,44 @@ seL4 中使用大量的预编译代码，根据配置使用 cpp 命令生成实�
     }
 ```
 
+### **6.3 pure rust 版本运行 rel4test 时间更长的问题**
 
+定位到直接原因是执行 seL4_Untyped_Retype syscall 时间过长，整个调用链为
+
+seL4_Untyped_Retype -> slowpath -> handleSyscall -> handleInvocation -> decode_invocation -> decode_untyed_invocation -> invoke_untyped_retype -> reset_untyped_cap
+
+在 reset_untyped_cap 执行时间变长，根因是执行下面循环代码，每次都会执行时间更长一点
+
+```
+while offset != -(BIT!(chunk) as isize) {
+    clear_memory(
+        GET_OFFSET_FREE_PTR(region_base, offset as usize) as *mut u8,
+        chunk,
+    );
+    prev_cap.set_capFreeIndex(OFFSET_TO_FREE_IDNEX(offset as usize) as u64);
+    let status = unsafe { preemptionPoint() };
+    if status != exception_t::EXCEPTION_NONE {
+        return status;
+    }
+    offset -= BIT!(chunk) as isize;
+}
+```
+
+其中主要影响是 preemptionPoint() ，这个函数执行不知道为什么时间变长。经过比较，发现其中的一个全局变量 **ksWorkUnitsCompleted** 放置的位置和之前不同。
+
+- 旧版本变量位置
+
+```
+# 位于 boot.bss 段
+ffffffff84001d10 D ksWorkUnitsCompleted 
+```
+
+因此我将 ksWorkUnitsCompleted 在 pure rust 版本中指定放在 boot.bss 段，解决了运行很慢的问题。
+
+```
+#[no_mangle]
+#[link_section = ".boot.bss"]
+pub static mut ksWorkUnitsCompleted: usize = 0;
+```
+
+虽然解决了该问题，但是不知道为什么这会造成这么大的影响。也许是缓存未命中？
