@@ -1,0 +1,22 @@
+---
+title: "2025S相关工作计划"
+weight: 1
+# bookFlatSection: false
+# bookToc: true
+# bookHidden: false
+# bookCollapseSection: false
+# bookComments: false
+# bookSearchExclude: false
+---
+
+# 2025S相关工作计划
+ - 修复完成MCS代码
+ - 完成SMP平台的支持
+ - 尝试对于MCS部分代码完成策略和机制框架的剥离
+ - 阅读了解相应的MCS的算法的实现以及可调度性的论证等内容
+ - 尝试基于上述代码机制的框架，添加MCS调度的一些框架，并形成相应的内核接口规范
+ - 尝试基于上述的内核接口，实现EEVDF等其他的调度算法。
+ - 修改相应的调度测例，证明调度算法正常工作了。
+ - 在上面的基础上，将调度算法挪动到用户态（这可能需要进一步修改syscall接口）
+ - 尝试基于上述工作，撰写相应的小论文，以及毕设开题
+ - 添加与硬件相关的工作。
