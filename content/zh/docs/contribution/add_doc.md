@@ -100,7 +100,12 @@ title: "文档例子"
 
 ![增加图片](/contribution/add_picture.png)
 
+## 5 增加latex公式
 
-## 5 文章发布
+如果想要增加一个latex公式，需要按照hogo的格式来增加
+
+[示例](https://hugo-book-demo.netlify.app/docs/shortcodes/katex/)
+
+## 6 文章发布
 
 当你希望发布文章时，只需提 pull request 将改动合入 main 分支，即可自动发布。

@@ -312,15 +312,15 @@ lag_i(t^+)=lag_i(t)+w_i\frac{lag_3(t)}{w_1+w_2}
 
 因此，类比上面的情况，我们可以得到某个task离开之后的V(t)的变化
 {{< katex display=true >}}
-V(t^+)=V(t)+\frac{lag_j(t)}{\sum_{i\epsilonA(t^+)}w_i}
+V(t^+)=V(t)+\frac{lag_j(t)}{\sum_{i\epsilon{A(t^+)}}w_i}
 {{< /katex >}}
 task加入则是
 {{< katex display=true >}}
-V(t^+)=V(t)-\frac{lag_j(t)}{\sum_{i\epsilonA(t^+)}w_i}
+V(t^+)=V(t)-\frac{lag_j(t)}{\sum_{i\epsilon{A(t^+)}}w_i}
 {{< /katex >}}
 更改权重，则可以视作某个时刻，某个task离开并瞬间以新的weight加入
 {{< katex display=true >}}
-V(t^+)=V(t)+\frac{lag_j(t)}{\sum_w_i-w_j}-\frac{lag_3(t)}{\sumw_i-w_j+w_j^new}
+V(t^+)=V(t)+\frac{lag_j(t)}{\sum_{w_i}-w_j}-\frac{lag_3(t)}{\sum_{w_i}-w_j+w_j^new}
 {{< /katex >}}
 上面这三个公式，就是在考虑了lag之后，对于V(t)的修正
 
