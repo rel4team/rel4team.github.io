@@ -52,35 +52,35 @@ EEVDF是Linux里面的新晋调度器（虽然也不是很新了），具体论�
       - 任务完成
 # 开始推导模型
 对于clinet i，让
-$$
+{{< katex display=true >}}
 A(t)
-$$
+{{< /katex >}}
 表示在时刻t所有的client的集合，每个client具有一个weight 
-$$
+{{< katex display=true >}}
 w_i
-$$
+{{< /katex >}}
 那么每个client期望获得的份额为
-$$
+{{< katex display=true >}}
 f_i(t)=\frac{w_i}{\sum_{j\epsilon{A(t)}}w_j}
-$$
+{{< /katex >}}
 如果对于一个连续的过程来说（就是说，并不像现实中的调度那样，一段时间全都分给某个进程，然后之后一段分给另一个进程），那么取一个足够短的时间片
-$$
+{{< katex display=true >}}
 (t,\delta{t})
-$$
+{{< /katex >}}
 我认为之所以取一段足够短的时间，是为了表明这个时间区间内client的集合以及每个clinet的权重weight并没有发生任何变动
 那么client会执行
-$$
+{{< katex display=true >}}
 f_i(t)\delta{t}
-$$
+{{< /katex >}}
 的时间长度。
 当然，这只是理想的情况下，也就是前面说的，client的集合和权重并没有发生变化，但是对于一段时间而言，还是会变化的，因此，使用简单的积分思想就可以得到，在一段client的集合和权重会发生变化的时间段
-$$
+{{< katex display=true >}}
 [t_0,t_1]
-$$
+{{< /katex >}}
 之内，令
-$$
+{{< katex display=true >}}
 S_i(t_0,t_1)=\int_{t_0}^{t_1}{f_i(t)}dt
-$$
+{{< /katex >}}
 这就是它在某个区间之内，根据权重weight得到的，期望的在这期间得到的service time。之后，我们都会使用Si(t0,t1)的形式（大S）来描述一个client i期望得到的服务时间。
 
 ## 和RT情况下的对比以及兼容
@@ -90,30 +90,30 @@ $$
 一个该周期内的最大服务时间 r
 以及一个截止时间d（即ddl，同样是下一个周期开始的时间）
 则cpu占用率即为
-$$
+{{< katex display=true >}}
 f=\frac{r}{T}
-$$
+{{< /katex >}}
 （这里的r和f的含义其实和上面的duration r以及份额share f其实是一样）
 而因为他是个周期任务，所以有在时刻t的时候
-$$
+{{< katex display=true >}}
 T=\frac{r}{f} (即给定了cpu利用率f和期望的服务时间r之后，得把周期设多少)
-$$
+{{< /katex >}}
 以及
-$$
+{{< katex display=true >}}
 d=t+T=t+\frac{r}{f}
-$$
-$$
+{{< /katex >}}
+{{< katex display=true >}}
 r=S(t,d)
-$$
+{{< /katex >}}
 同样的，如果份额f一直不变（这在RT的情况下是完全符合的,一个实时性的任务在确定好周期以及最大的服务时间之后，通常不会试图改变它）
 那么应当有
-$$
+{{< katex display=true >}}
 S(t,d)=f(d-t) (S原本是一个在t到d上对f的一个积分，因为f是不变的，所以直接f乘以积分区间即可)
-$$
+{{< /katex >}}
 即
-$$
+{{< katex display=true >}}
 r=f(d-t) => d=t+\frac{r}{f}
-$$
+{{< /katex >}}
 表明这个框架是能够兼容RT情况下的分析的
 
 当然，也有一些区别，比如RT情况下，事件来自于外部，而EEVDF这里来自于外部事件或者内部事件
@@ -128,47 +128,47 @@ $$
 
 所以它定义了另一个时间，也就是实际得到的服务时间si（这里是小S）
 另外，令
-$$
+{{< katex display=true >}}
 t_0^i
-$$
+{{< /katex >}}
 表示在某个时刻一个任务变成acitve（我的理解就是request到了）（下面说到这个变量也是一个含义）
 那么，实际服务时间和期望的服务时间之间存在一个差距（也许这个差距很微小，但是累计之后，就很多了）
 用以下公式来表示这种实际和应得之间的差距
-$$
+{{< katex display=true >}}
 lag_i(t)=S_i(t_0^i,t)-s_i(t_0^i,t)
-$$
+{{< /katex >}}
 
 ## 虚拟时间
 考虑到上面的公式
-$$
+{{< katex display=true >}}
 f_i(t)=\frac{w_i}{\sum_{j\epsilon{A(t)}}w_j}
-$$
-$$
+{{< /katex >}}
+{{< katex display=true >}}
 S_i(t_0,t_1)=\int_{t_0}^{t_1}{f_i(t)}dt
-$$
+{{< /katex >}}
 所以
-$$
+{{< katex display=true >}}
 S_i(t_0,t_1)=\int_{t_0}^{t_1}{\frac{w_i}{\sum_{j\epsilon{A(t)}}w_j}}dt
-$$
-$$
+{{< /katex >}}
+{{< katex display=true >}}
 ={w_i}\int_{t_0}^{t_1}{\frac{1}{\sum_{j\epsilon{A(t)}}w_j}}dt
-$$
+{{< /katex >}}
 则，我们让虚拟时间V（t）等于
-$$
+{{< katex display=true >}}
 V(t)=\int_{0}^{t}{\frac{1}{\sum_{j\epsilon{A(t)}}w_j}}dt
-$$
+{{< /katex >}}
 从而有
-$$
+{{< katex display=true >}}
 S_i(t_0,t_1)=w_i(V(t_1)-V(t_0))
-$$
+{{< /katex >}}
 这里关于积分上下限的处理，是常见的，我就不多说了，这个式子的实际作用就是，让一个任务的期望运行时间，通过虚拟时间的变化来进行描述，而不再使用真实的时间来进行描述。
 
 ## EEVDF的核心思想
 这里用e表示设置的virtual eligible time时间
 他的核心思想就是，要让一个任务的新的request（原文其实挺绕的，我是真翻译不来）开始的时间满足如下的约束，这里t应该是一个新的request到达的时间
-$$
+{{< katex display=true >}}
 S_i(t_0^i,e)=s_i(t_0^i,t)
-$$
+{{< /katex >}}
 后者是表示在这个新的request开始之前，已经获得的实际的运行时间。
 而前者是表示从他开始active到e的期望服务时间
 在t时刻：
@@ -178,37 +178,37 @@ $$
 这件事情其实也是有意义的，因为，EEVDF会选择虚拟截止时间更早的额那个，而虚拟开始时间更早了，虚拟截止时间肯定也向前推，所以，他能够获得更大的机会来运行。
 
 根据这一思想，我们开始计算：
-$$
+{{< katex display=true >}}
 S_i(t_0^i,e)=s_i(t_0^i,t)
-$$
-$$
+{{< /katex >}}
+{{< katex display=true >}}
 S_i(t_0^i,e)=w_i(V(e)-V(t_0^i))
-$$
+{{< /katex >}}
 所以可以有：
-$$
+{{< katex display=true >}}
 V(e)=V(t_i^0)+\frac{s_i(v_0^i,t)}{w_i}
-$$
+{{< /katex >}}
 我们上面说了，已经开始用虚拟时间来开始描述了，因此求出虚拟时间即可
 
 同理，在这种情况下我们可以求出V（d）
 在request给出了服务时间r的情况下
 因为上面的公式
-$$
+{{< katex display=true >}}
 r=S_i(t,d)=w_i(V(d)-V(e))
-$$
+{{< /katex >}}
 从而有
-$$
+{{< katex display=true >}}
 V(d)=V(e)+\frac{r}{w_i}
-$$
+{{< /katex >}}
 如果，期望服务时间和实际运行时间相同（即不考虑lag的情况），令u表示实际运行时间
 另外，如果一个requeset结束了，到ddl了，就立马开始下一个新的request（因为没有lag，所以按照上面的分析e=t），也就是
-$$
+{{< katex display=true >}}
 V_k(d)=V_{k+1}(e) (其中k表示请求的序号，也就是说第k个请求结束之后立马是k+1个请求的开始)
-$$
+{{< /katex >}}
 代入之后计算
-$$
+{{< katex display=true >}}
 V_{k+1}(e)=V_k(e)+\frac{r}{w_i}
-$$
+{{< /katex >}}
 
 
 ## 虚拟时间在各种事件上的变化和lag的处理
