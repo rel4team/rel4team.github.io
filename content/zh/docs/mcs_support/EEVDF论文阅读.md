@@ -320,7 +320,7 @@ V(t^+)=V(t)-\frac{lag_j(t)}{\sum_{i\epsilon{A(t^+)}}w_i}
 {{< /katex >}}
 更改权重，则可以视作某个时刻，某个task离开并瞬间以新的weight加入
 {{< katex display=true >}}
-V(t^+)=V(t)+\frac{lag_j(t)}{\sum_{w_i}-w_j}-\frac{lag_3(t)}{\sum_{w_i}-w_j+w_j^new}
+V(t^+)=V(t)+\frac{lag_j(t)}{\sum_{w_i}-w_j}-\frac{lag_j(t)}{\sum_{w_i}-w_j+w_j^{new}}
 {{< /katex >}}
 上面这三个公式，就是在考虑了lag之后，对于V(t)的修正
 
