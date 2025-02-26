@@ -276,15 +276,15 @@ S_i(t_0,t^+)=(t-t_0-s_3(t_0,t))\frac{w_i}{w_1+w_2}
 
 后面的推导就比较简单了，由于前面说
 {{< katex display=true >}}
-lag_i(t)=w_i\fra{t-t_0}{w_1+w_2+w_3}-s_i(t_0,t)
+lag_i(t)=w_i\frac{t-t_0}{w_1+w_2+w_3}-s_i(t_0,t)
 {{< /katex >}}
 从而有
 {{< katex display=true >}}
-s_i(t_0,t)=w_i\fra{t-t_0}{w_1+w_2+w_3}-lag_i(t)
+s_i(t_0,t)=w_i\frac{t-t_0}{w_1+w_2+w_3}-lag_i(t)
 {{< /katex >}}
 所以可以令i=3代入上面的s3(t0,t)
 {{< katex display=true >}}
-S_i(t_0,t^+)=(t-t_0-(w_i\fra{t-t_0}{w_1+w_2+w_3}-lag_3(t)))\frac{w_i}{w_1+w_2}
+S_i(t_0,t^+)=(t-t_0-(w_i\frac{t-t_0}{w_1+w_2+w_3}-lag_3(t)))\frac{w_i}{w_1+w_2}
 {{< /katex >}}
 {{< katex display=true >}}
 =(\frac{w_1+w_2}{w_1+w_2+w_3}(t-t_0)+lag_3(t))\frac{w_i}{w_1+w_2}
@@ -312,15 +312,15 @@ lag_i(t^+)=lag_i(t)+w_i\frac{lag_3(t)}{w_1+w_2}
 
 因此，类比上面的情况，我们可以得到某个task离开之后的V(t)的变化
 {{< katex display=true >}}
-V(t^+)=V(t)+\frac{lag_3(t)}{\sum{i\epsilonA(t^+)}w_i}
+V(t^+)=V(t)+\frac{lag_j(t)}{\sum_{i\epsilonA(t^+)}w_i}
 {{< /katex >}}
 task加入则是
 {{< katex display=true >}}
-V(t^+)=V(t)-\frac{lag_3(t)}{\sum{i\epsilonA(t^+)}w_i}
+V(t^+)=V(t)-\frac{lag_j(t)}{\sum_{i\epsilonA(t^+)}w_i}
 {{< /katex >}}
 更改权重，则可以视作某个时刻，某个task离开并瞬间以新的weight加入
 {{< katex display=true >}}
-V(t^+)=V(t)+\frac{lag_3(t)}{\sumw_i-w_j}-\frac{lag_3(t)}{\sumw_i-w_j+w_j^new}
+V(t^+)=V(t)+\frac{lag_j(t)}{\sum_w_i-w_j}-\frac{lag_3(t)}{\sumw_i-w_j+w_j^new}
 {{< /katex >}}
 上面这三个公式，就是在考虑了lag之后，对于V(t)的修正
 
