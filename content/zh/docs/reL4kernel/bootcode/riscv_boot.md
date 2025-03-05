@@ -1,4 +1,5 @@
 +++
+weight = 5
 date = '2025-01-08T14:30:15+08:00'
 title = '启动代码和编译系统移植'
 +++
@@ -259,115 +260,23 @@ pub fn c_handle_fastpath_reply_recv(cptr: usize, msgInfo: usize, reply: usize) {
 }
 ```
 
-## 4. 编译系统及新旧模式兼容
+## 4. TODOs
 
-为了方便后续开发和对比，我实现了 reL4 Kernel 新旧模式的兼容。简单来说，通过一个 CMake Option 选择编译哪种模式，默认还是使用旧模式 (reL4 作为 lib)。这样的好处是，在 **纯 rust** 模式移植过程中，可以不断的 merge 进 master，而无需等所有功能，所有 CPU 架构相关代码都移植完成后才能合入，后者显然需要一个非常长的时间。
+- [x] 需要设计一套配置系统，实现根据配置生成所有架构和平台相关代码的功能，避免每个平台导入都通过手写代码的方式。
 
-两种模式会并行一段时间，Pure Rust 模式会逐渐实现所有功能，等完成所有功能移植并测试稳定后，会将旧模式废弃。
+- [x] Pure Rust 模式运行 sel4test 比旧模式要慢，还需要进一步调查
+- [x] aarch64 架构移植
+- [x] 代码优化，避免冗余的全局变量
 
-下面介绍下对编译系统的一些改动
-
-### 4.1 编译命令
-```
-# 在 rel4test 中
-# 编译旧模式没有变化
-cd rel4_kernel
-./build.py -p spike
-
-# kernel.elf 在 build/kernel 路径下
-
-# 编译新模式加一个参数
-./build.py -p spike --bin
-
-# kernel.elf 在 build/rel4_kernel 下
-```
-
-### 4.2 兼容性设计
-
-如上所说，为了兼容新旧模式，主要修改了以下部分
-
-- ReL4 Kernel 中增加一个 CMakeLists.txt
-
-这个 CMakeLists 相当于一个接头，将 Cargo 编译产物接入到 seL4 CMake 编译系统中。除了 kernel，我们不想改变 seL4 原生的其他项目，因此在编译整个镜像 （opensbi + kernel + userspace）时，仍然使用 seL4 提供的编译系统。
-
-这个 CMakeList 重要内容如下
-
-```
-# rel4 编译命令
-add_custom_command(
-    OUTPUT ${CMAKE_BINARY_DIR}/reL4/kernel.elf
-    COMMAND cargo clean
-    COMMAND cargo update -p home --precise 0.5.5
-    COMMAND ${BUILD_COMMAND} 
-    COMMAND ${CMAKE_OBJCOPY} --remove-section=.riscv.attributes ${KERNEL_ELF_PATH} ${CMAKE_BINARY_DIR}/reL4/kernel.elf
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    COMMENT "Build and prepare reL4 kernel.elf"
-)
-
-# rel4 编译 target，依赖 kernel.elf 会触发上面的 cmake custom command
-add_custom_target(
-    build_reL4
-    DEPENDS ${CMAKE_BINARY_DIR}/reL4/kernel.elf
-)
-
-# rel4 编译 target wrapper，供其他函数调用 reL4_kernel.elf
-add_executable(reL4_kernel.elf IMPORTED GLOBAL)
-set_target_properties(reL4_kernel.elf PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/reL4/kernel.elf
-)
-```
-
-- sel4test 中引用 rel4_kernel CMake 模块
-
-重要的地方是，如果有 REL4_KERNEL 这个编译选项，就引入 reL4 module
-
-```
-if(REL4_KERNEL)
-    find_package(reL4 REQUIRED)
-endif()
-
-if(REL4_KERNEL)
-    rel4_import_kernel()
-endif()
-```
-
-- elfloader 里实现新旧模式兼容
-
-elfloader 将所有 elf 文件打包成一个完整镜像，我们只替换 kernel elf，opensbi 和 userspace elf 文件保持不变，这样才可以验证 reL4 kernel 实现了对 seL4 kernel 的替代。
-
-在下面所示的地方，同样根据 REL4_KERNEL 编译选项，选择使用旧模式生成的 kernel elf 还是新模式生成的
-
-```
-if(REL4_KERNEL)
-    list(APPEND cpio_files "$<TARGET_FILE:reL4_kernel.elf>")
-else()
-    list(APPEND cpio_files "$<TARGET_FILE:kernel.elf>")
-endif()
-```
-
-这就是为什么我们要在 reL4 CMakeList 中加一个 **rel4 编译 target wrapper**，就是供 **$<TARGET_FILE:reL4_kernel.elf>** 调用的，这样可以很方便的找到 kernel.elf 文件路径，无需写一个固定路径。
-
-### 4.3 Pure Rust 的优势
-
-Pure rust 模式最大的优势是，编译只需要 rel4_kernel 这一个项目，使用 cargo 就可以编译出 kernel.elf。而无需像之前一样，还要依赖复杂的 seL4 编译系统，通过编译 kernel.elf target，把 rel4 作为静态库链接进去。
-
-## 5. TODOs
-
-- [ ] 需要设计一套配置系统，实现根据配置生成所有架构和平台相关代码的功能，避免每个平台导入都通过手写代码的方式。
-
-- [ ] Pure Rust 模式运行 sel4test 比旧模式要慢，还需要进一步调查
-- [ ] aarch64 架构移植
-- [ ] 代码优化，避免冗余的全局变量
-
-## 6. 移植遇到的坑
+## 5. 移植遇到的坑
 
 移植当中，遇到的问题记录如下
 
-### **6.1 seL4 中预编译代码**
+### **5.1 seL4 中预编译代码**
 
 seL4 中使用大量的预编译代码，根据配置使用 cpp 命令生成实际的代码。即使是 linker 脚本和汇编代码也通过该方式生成。这部分无法直接移植，需要仔细分析其生成前后的文件，理解其含义。
 
-### **6.2 rust 编译产生的符号所在的段和 C 有些区别**
+### **5.2 rust 编译产生的符号所在的段和 C 有些区别**
 
 比如 init_kernel 函数，默认会在 text.init_kernelxxxx 段，而不是 text 段。使用 seL4 原有的链接脚本时，会产生非常多的段（可以理解成每个函数会产生一个段），同时由于链接脚本中只定义了 text，data 等段放置的位置，这些 rust 编译产生的带后缀的段会被放在莫名其妙的位置，造成内存布局上 bss 段和 text 段的交叉，进一步造成修改 bss 段变量时会误修改 text 段数据。这是很严重的错误，会报非法指令（因为原有正常的指令都被改成 0 了）
 
@@ -396,7 +305,7 @@ seL4 中使用大量的预编译代码，根据配置使用 cpp 命令生成实�
     }
 ```
 
-### **6.3 pure rust 版本运行 rel4test 时间更长的问题**
+### **5.3 pure rust 版本运行 rel4test 时间更长的问题**
 
 定位到直接原因是执行 seL4_Untyped_Retype syscall 时间过长，整个调用链为
 
