@@ -12,7 +12,7 @@ commentsId: 1
 
 ​		鉴于此，Unikraft率先踏入了完全模块化内核的探索之旅，创新性地以微库形式呈现一系列高度可配置的操作系统功能模块。这一设计赋予了用户前所未有的灵活性，能够轻松地从构建基线中添加或移除所需模块，通过精细组合这些微库，打造出专为特定应用需求量身定制的Unikernel。尤为值得一提的是，Unikraft为这些模块精心设计了清晰定义的API接口，让用户能够基于性能优化、资源最小化等多样化需求，在同一组件的不同实现间做出选择并灵活组合。
 
-![UniKraft对linux的分析](./images/Unikraft对linux的分析.png)
+![UniKraft对linux的分析](/architecture/images/Unikraft对linux的分析.png)
 
 ​		在当前的IoT（物联网）、智能自动驾驶等前沿领域，实际需求往往聚焦于运行少数几个高度定制化的软件，而非全面依赖一个泛用型操作系统。这些场景常伴随着资源限制、对系统调用速度的高要求以及对实时性的严苛标准。在此背景下，传统Linux宏内核的“大而全”模式显得愈发笨重，难以满足快速变化且多样化的需求。相比之下，组件化操作系统的优势凸显无遗，其卓越的组件可替换性和模块化设计，为精准匹配各类特定场景需求提供了强有力的支持。可以预见的，未来的内核不会是一个完全的自包含系统，而是由诸多可替换组件所构成的灵活的动态的内核。
 
@@ -107,7 +107,7 @@ Rust语言在模块化上仍有其特点。
 
 我们改造后的整体框架如下图
 
-![组件化微内核架构](./images/rel4架构图.png)
+![组件化微内核架构](/architecture/images/rel4架构图.png)
 
 ### Rust和C的兼容层设计
 
@@ -820,7 +820,7 @@ git subrepo push sub-module-dir
 
 最终我们确定的工作方式如下图所示
 
-![组件化微内核协作方式](./images/协作式开发逻辑.png)
+![组件化微内核协作方式](/architecture/images/协作式开发逻辑.png)
 
 # 4、模块化微内核的测试
 
@@ -832,7 +832,7 @@ git subrepo push sub-module-dir
 
 以下是测试的截图：
 
-![整体测试](./images/整体测试.png)
+![整体测试](/architecture/images/整体测试.png)
 
 ## 单元测试
 
@@ -888,7 +888,7 @@ ipc模块的单元测试在feature/test-check分支
 
 aarch64和riscv64的运行结果如下
 
-![aarch64单元测试](./images/aarch64单元测试.jpg)
+![aarch64单元测试](/architecture/images/aarch64单元测试.jpg)
 
-![riscv64单元测试](./images/riscv64单元测试.jpg)
+![riscv64单元测试](/architecture/images/riscv64单元测试.jpg)
 
