@@ -1,6 +1,6 @@
 ---
 title: "priority assignment algorithm"
-weight: 1
+weight: 5
 # bookFlatSection: false
 # bookToc: true
 # bookHidden: false
