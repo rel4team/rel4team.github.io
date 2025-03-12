@@ -102,9 +102,9 @@ title: "文档例子"
 
 ## 5 增加latex公式
 
-如果想要增加一个latex公式，需要按照hogo的格式来增加
+我找到了一个新的主题，他看上去只需要按照正常的markdown格式的latex的书写规则就行了，但是据说更高级的数学公式的用法，需要按照下面的说明文档来写
 
-[示例](https://hugo-book-demo.netlify.app/docs/shortcodes/katex/)
+[说明文档](https://mcshelby.github.io/hugo-theme-relearn/shortcodes/math/index.html)
 
 ## 6 文章发布
 
