@@ -1,5 +1,5 @@
 ---
-weight: 1
+weight: 2
 bookCollapseSection: false
 title: seL4基本介绍
 commentsId: 1

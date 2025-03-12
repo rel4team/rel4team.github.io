@@ -8,5 +8,7 @@ commentsId: 1
 # 支持的平台
 
 目前支持的平台如下
-[√] qemu模拟器下的riscv spike平台
-[√] qemu模拟器下的qemu-arm-virt平台
+
+ - [x] qemu模拟器下的riscv spike平台
+
+ - [x] qemu模拟器下的qemu-arm-virt平台
