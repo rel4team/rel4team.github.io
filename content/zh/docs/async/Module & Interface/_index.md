@@ -1,6 +1,6 @@
 ---
 weight: 3
-bookCollapseSection: true
+bookCollapseSection: false
 title: 模块介绍
 commentsId: 1
 ---

@@ -1,6 +1,6 @@
 ---
 weight: 100
-bookCollapseSection: true
+bookCollapseSection: false
 title: "文档例子"
 ---
 

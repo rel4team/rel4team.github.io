@@ -1,5 +1,5 @@
 ---
-weight: 2
+weight: 3
 bookCollapseSection: false
 title: "在rel4中添加mcs特性支持"
 commentsId: 1 

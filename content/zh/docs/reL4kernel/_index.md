@@ -1,6 +1,6 @@
 ---
-weight: 2
-bookCollapseSection: true
+weight: 4
+bookCollapseSection: false
 bookFlatSection: true
 title: "ReL4 Kernel"
 ---
