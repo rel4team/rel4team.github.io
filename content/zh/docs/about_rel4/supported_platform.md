@@ -1,5 +1,5 @@
 ---
-weight: 1
+weight: 3
 bookCollapseSection: false
 title: reL4项目目前支持的平台
 commentsId: 1

@@ -1,7 +1,7 @@
 ---
-weight: 5
+weight: 6
 bookFlatSection: true
-title: "rel4 宏内核用户态程序设计"
+title: "reL4 宏内核用户态程序设计"
 commentsId: 1 
 ---
 
