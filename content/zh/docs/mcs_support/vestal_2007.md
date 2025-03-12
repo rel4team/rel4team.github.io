@@ -40,9 +40,9 @@ CiA ≥CiB ≥CiC ≥CiD（显然优先级越高，允许执行的时间越多�
 
 他的结论如下：
 
-{{< katex display=true >}}
+$$
 R_i=\sum_{j:ρ_j≤ρ_i} \lceil {\frac{R_i}{T_j}} \rceil C_{jL_i}
-{{< /katex >}}
+$$
 
 在这里，Ri表示某个任务的响应时间，那么在这个任务响应之前，比他优先级更高的任务一定先被响应了，并且完成了他们的Ci运行时间。
 
