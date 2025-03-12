@@ -1,6 +1,6 @@
 baseURL = 'https://rel4team.github.io'
 title = 'ReL4 Book'
-theme = 'hugo-theme-relearn'
+theme = 'hugo-book'
 
 # Book configuration
 disablePathToLower = true
