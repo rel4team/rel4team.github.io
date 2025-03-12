@@ -1,5 +1,5 @@
 ---
-weight: 4
+weight: 2
 bookCollapseSection: false
 bookFlatSection: true
 title: "ReL4 Kernel"
@@ -7,9 +7,7 @@ title: "ReL4 Kernel"
 
 ## ReL4 Kernel
 
-ReL4 Kernel 是 SeL4 Kernel 的 Rust 实现。通过一个个模块重写的方式，逐步将 SeL4 转换为 Rust 实现
-
-Kernel 工作主要分为以下几个部分
+本章介绍我们在将seL4移植到reL4过程中的一些细致的记录
 
 1. [启动代码移植](./bootcode/_index.md)
-
+2. [MCS特性支持](./mcs_support/_index.md)
