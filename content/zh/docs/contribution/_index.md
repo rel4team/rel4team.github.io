@@ -1,6 +1,6 @@
 ---
 weight: 100
-bookCollapseSection: false
+bookCollapseSection: true
 bookFlatSection: true
 title: "文档贡献"
 ---
