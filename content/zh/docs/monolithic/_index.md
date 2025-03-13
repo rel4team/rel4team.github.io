@@ -1,5 +1,6 @@
 ---
 weight: 6
+bookCollapseSection: true
 bookFlatSection: true
 title: "reL4 宏内核用户态程序设计"
 commentsId: 1 
