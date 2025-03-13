@@ -1,6 +1,6 @@
 ---
 weight: 1
-bookCollapseSection: false
+bookCollapseSection: true
 title: Background
 commentsId: 1
 ---
