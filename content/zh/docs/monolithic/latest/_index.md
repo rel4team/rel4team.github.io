@@ -1,6 +1,6 @@
 ---
 weight: 10
-bookCollapseSection: false
+bookCollapseSection: true
 title: "当前设计"
 commentsId: 1 
 ---

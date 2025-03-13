@@ -1,7 +1,7 @@
 ---
 weight: 1
 bookCollapseSection: true
-title: Background
+title: 背景介绍
 commentsId: 1
 ---
 
