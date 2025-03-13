@@ -1,6 +1,6 @@
 ---
 weight: 1
-bookCollapseSection: false
+bookCollapseSection: true
 title: "ReL4 编译和配置系统设计"
 ---
 
