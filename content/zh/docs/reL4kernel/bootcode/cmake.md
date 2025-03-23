@@ -46,11 +46,6 @@ cd rel4_kernel
 # rel4 编译命令
 add_custom_command(
     OUTPUT ${CMAKE_BINARY_DIR}/reL4/kernel.elf
-    COMMAND cargo clean
-    # 生成平台相关 code 
-    COMMAND python3 kernel/generator.py -p ${PLATFORM} ${PYTHON_DEFINE_ARGS}
-    COMMAND cargo update -p home --precise 0.5.5
-    COMMAND ${BUILD_COMMAND} 
     COMMAND ${CMAKE_OBJCOPY} --remove-section=.riscv.attributes ${KERNEL_ELF_PATH} ${CMAKE_BINARY_DIR}/reL4/kernel.elf
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
     COMMENT "Build and prepare reL4 kernel.elf"
