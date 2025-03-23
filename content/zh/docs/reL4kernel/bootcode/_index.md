@@ -15,6 +15,7 @@ ReL4 Kernel 是 SeL4 Kernel 的 Rust 实现。通过一个个模块重写的方�
 该工作主要分为以下几个部分
 
 1. [riscv 启动代码移植](./riscv_boot.md)
-2. [配置系统设计开发](./config_system.md)
+2. [配置系统设计开发 (废弃)](./config_system.md)
 3. [编译系统兼容](./cmake.md)
+4. [编译系统 v2 版本](./build_system_v2.md)
 
