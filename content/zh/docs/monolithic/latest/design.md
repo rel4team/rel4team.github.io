@@ -38,7 +38,7 @@ commentsId: 1
 
 在 rel4-linux-kit 的启动阶段，root-task 负责启动所有服务进程。这些服务进程之间可能存在相互依赖，因此需要通过向 root-task 发送 find_service 请求来获取所需的 EndPoint，从而建立进程间通信。
 
-Linux 应用由 kernel-thread 启动并提供服务。在 [二进制兼容]({{< ref "/docs/monolithic/latest/bin-compact.md" >}}) 文档中，我们介绍了当前提供的二进制兼容方案。kernel-thread 需要在 Linux-App 触发 FaultIPC 时提供支持。由于 kernel-thread 需要持续等待 IPC 请求，它是阻塞的，无法处理定时任务或唤醒其他服务。为了解决这一问题，kernel-thread 会创建一个新的线程来专门处理定时器。当用户态任务请求 sleep 时，kernel-thread 负责记录任务的等待时间并将其挂起，等待唤醒。kernel-thread-1 负责管理定时器，并在超时后唤醒相应的任务。
+Linux 应用由 kernel-thread 启动并提供服务。在 [二进制兼容]({{< ref "/docs/monolithic/latest/bin-compact.md" >}}) 文档中，我们介绍了当前提供的二进制兼容方案。kernel-thread 需要在 Linux-App 触发 FaultIPC 时提供支持。
 
 
 ## 运行案例
