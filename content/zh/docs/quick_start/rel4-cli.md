@@ -61,6 +61,8 @@ Options:
 - qemu-arm-virt
 - spike
 
+### 3.2 用户态开发者如何使用 rel4-cli
+
 为了更直观的说明 reL4 内核的部署方式，我们举例说明，宏内核 rel4-linux-kit 开发者如何使用该工具部署更新 reL4 内核
 
 ```bash
@@ -73,14 +75,29 @@ rel4-cli install kernel --bin -P $(realpath .)/.env/seL4
 make run LOG=error
 ```
 
-### 3.2 运行测例
+### 3.3 rel4 内核态开发者如何使用 rel4-cli
+
+rel4 kernel 项目已经集成了 [xtask 编译脚本](../reL4kernel/bootcode/build_system_v2.md)，因此如果只是运行 sel4test 测例，其实不用使用 rel4-cli
+
+但有的时候内核态开发者可能需要运行 rel4-linux-kit 测例，此时可以使用 rel4-cli 将本地 rel4-integral 项目同步到 SEL4_PREFIX 目录下，然后可以在 rel4-linux-kit 项目中使用更新后的 reL4 内核运行测例，以测试开发中的内核
+
+```bash
+rel4-cli install kernel --bin --local ${YOUR_REL4_INTEGRAL_PATH}
+
+# 运行 rel4-linux-kit 测例
+cd rel4-linux-kit
+
+make SEL4_PREFIX=$SEL4_PREFIX run LOG=error
+```
+
+### 3.4 运行测例
 
 TODO
 
-### 3.3 安装依赖环境
+### 3.5 安装依赖环境
 
 TODO
 
-### 3.4 编译内核态+用户态完整镜像
+### 3.6 编译内核态+用户态完整镜像
 
 TODO
