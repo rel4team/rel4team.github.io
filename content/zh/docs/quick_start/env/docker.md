@@ -19,7 +19,7 @@ weight: 1
 
 ### 2.1 进入 Docker 环境
 
-> Start Docker 后会做一些配置，启动时间较长，因此尽量不要频繁的 Start Docker
+> Start Docker 后会做一些配置，配置 rust 和 cargo 文件夹权限，启动时间很长，因此尽量不要频繁的 Start Docker
 
 ```
 # start_docker, only need execute once
@@ -31,6 +31,13 @@ docker exec -u ${USER} -it rel4_dev bash
 
 # You should be in the rel4_dev_env now
 croak@rel4_dev_env:/workspace
+```
+
+如果你不需要更新 docker 镜像，每次开机后可以直接使用下面的命令启动并进入 docker 环境
+
+```
+docker start rel4_dev
+docker exec -u ${USER} -it rel4_dev bash
 ```
 
 ### 2.2 Docker 启动脚本
