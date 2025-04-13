@@ -1,5 +1,5 @@
 ---
-weight: 2
+weight: 1
 bookCollapseSection: false
 bookFlatSection: true
 title: "环境安装"
