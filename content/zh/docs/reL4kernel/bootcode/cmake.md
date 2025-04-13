@@ -18,12 +18,12 @@ title = 'CMake 兼容性设计'
 # 在 rel4test 中
 # 编译旧模式没有变化
 cd rel4_kernel
-./build.py -p spike
+cargo xtask build -p spike
 
 # kernel.elf 在 build/kernel 路径下
 
 # 编译新模式加一个参数
-./build.py -p spike --bin
+cargo xtask build -p spike --bin
 
 # kernel.elf 在 build/rel4_kernel 下
 

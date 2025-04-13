@@ -667,23 +667,23 @@ TCB切换时机：真正的线程调度组合为schedule()+restore_user_context(
 [profile.release]
 lto = true
 
-[patch.'https://github.com/rel4team/driver-collect.git']
+[patch.'https://github.com/rel4team2/driver-collect.git']
 driver-collect = { path = "driver-collect" }
-[patch.'https://github.com/rel4team/serial-frame.git']
+[patch.'https://github.com/rel4team2/serial-frame.git']
 serial-frame = { path = "serial-frame" }
-[patch.'https://github.com/rel4team/serial-impl-pl011.git']
+[patch.'https://github.com/rel4team2/serial-impl-pl011.git']
 serial-impl-pl011 = { path = "serial-impl/pl011" }
-[patch.'https://github.com/rel4team/serial-impl-sbi.git']
+[patch.'https://github.com/rel4team2/serial-impl-sbi.git']
 serial-impl-sbi = { path = "serial-impl/sbi" }
-[patch.'https://github.com/rel4team/sel4_common.git']
+[patch.'https://github.com/rel4team2/sel4_common.git']
 sel4_common = { path = "sel4_common" }
-[patch.'https://github.com/rel4team/sel4_cspace.git']
+[patch.'https://github.com/rel4team2/sel4_cspace.git']
 sel4_cspace = { path = "sel4_cspace" }
-[patch.'https://github.com/rel4team/sel4_ipc.git']
+[patch.'https://github.com/rel4team2/sel4_ipc.git']
 sel4_ipc = { path = "sel4_ipc" }
-[patch.'https://github.com/rel4team/sel4_task.git']
+[patch.'https://github.com/rel4team2/sel4_task.git']
 sel4_task = { path = "sel4_task" }
-[patch.'https://github.com/rel4team/sel4_vspace.git']
+[patch.'https://github.com/rel4team2/sel4_vspace.git']
 sel4_vspace = { path = "sel4_vspace" }
 ```
 
@@ -699,12 +699,12 @@ aarch64-cpu = "9.4.0"
 log = "0.4"
 tock-registers = "0.8"
 spin = { version = "0.9", features = ["use_ticket_mutex"] }
-sel4_common = { git = "https://github.com/rel4team/sel4_common.git", branch = "mi_dev" }
-sel4_cspace = { git = "https://github.com/rel4team/sel4_cspace.git", branch = "mi_dev" }
-sel4_vspace = { git = "https://github.com/rel4team/sel4_vspace.git", branch = "mi_dev" }
-sel4_task = { git = "https://github.com/rel4team/sel4_task.git", branch = "mi_dev" }
-sel4_ipc = { git = "https://github.com/rel4team/sel4_ipc.git", branch = "mi_dev" }
-driver-collect = { git = "https://github.com/rel4team/driver-collect.git", branch = "mi_dev" }
+sel4_common = { git = "https://github.com/rel4team2/sel4_common.git", branch = "mi_dev" }
+sel4_cspace = { git = "https://github.com/rel4team2/sel4_cspace.git", branch = "mi_dev" }
+sel4_vspace = { git = "https://github.com/rel4team2/sel4_vspace.git", branch = "mi_dev" }
+sel4_task = { git = "https://github.com/rel4team2/sel4_task.git", branch = "mi_dev" }
+sel4_ipc = { git = "https://github.com/rel4team2/sel4_ipc.git", branch = "mi_dev" }
+driver-collect = { git = "https://github.com/rel4team2/driver-collect.git", branch = "mi_dev" }
 ```
 
 除此之外还指定了比如riscv、aarch64-cpu、log等crate.io中存在的官方仓库。

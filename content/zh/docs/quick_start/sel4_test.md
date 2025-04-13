@@ -31,7 +31,7 @@ docker exec -u ${USER} -it rel4_dev bash
 
 cd rel4_kernel
 cargo update home@0.5.11 --precise 0.5.5
-./build.py -p spike -m off -s on&& cd build && ./simulate && cd ..
+cargo xtask build -p spike -m off -s on&& cd build && ./simulate && cd ..
 
 # 如果需要进行提交，exit命令离开docker，进入对应的文件夹进行提交
 ```

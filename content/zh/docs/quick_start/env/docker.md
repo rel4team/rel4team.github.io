@@ -24,7 +24,7 @@ weight: 1
 ```
 # start_docker, only need execute once
 # LOCAL WORKSPACE is the dir which map into docker container. Usually, it's you workspace, will map to /workspace in docker container docker. Please replace the {LOCAL WORKSPACE} with real dir path 
-curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/rel4team/build-scripts/refs/heads/mi_dev/scripts/start_docker.sh | bash -s -- {LOCAL WORKSPACE}
+curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/rel4team2/build-scripts/refs/heads/mi_dev/scripts/start_docker.sh | bash -s -- {LOCAL WORKSPACE}
 
 # enter docker with your current user
 docker exec -u ${USER} -it rel4_dev bash
@@ -45,7 +45,7 @@ docker exec -u ${USER} -it rel4_dev bash
 如果你的网络不好，无法访问 raw.github, 可以将脚本 clone 下来再运行
 
 ```
-git clone https://github.com/rel4team/build-scripts.git
+git clone https://github.com/rel4team2/build-scripts.git
 cd build-scripts/scripts
 bash start_docker.sh {LOCAL WORKSPACE}
 
@@ -100,21 +100,7 @@ croak@rel4_dev_env:/workspace
 
 ### 3.1 rel4 kernel
 
-在 Docker 环境中编译运行 rel4test 如下
-
-```
-# clone mi-dev kernel，you can also run follow command outside docker
-mkdir mi-dev-repo && cd mi-dev-repo
-repo init -u https://github.com/rel4team/mi-dev-repo.git -b main
-repo sync
-
-cd rel4_kernel
-./build.py -p spike
-
-cd build
-./simulate
-
-```
+在 Docker 环境中编译运行 rel4 kernel 并运行 sel4test 参考 [sel4_test](../sel4_test.md)
 
 ### 3.2 seL4 kernel
 
