@@ -49,18 +49,28 @@ seL4 的 IPC 是一种高效的通信机制，允许不同的线程在同一地�
 
 从 crate 级别来说，cargo 在编译的时候需要一个唯一的顶层模块，且存在唯一一个 `main.rs` 文件。在目前的 rel4-linux-kit 中以 lwext4-thread 和 blk-thread 为例，这两个 crate 都是顶层模块，且都包含一个 `main.rs` 文件。我们需要将这两个 crate 中的 `main.rs` 文件进行合并，形成一个新的顶层模块。需要将 lwext4-thread 作为顶层模块，blk-thread 作为子模块，将 blk-thread 中的 main.rs 文件重命名为 lib.rs
 
+看起来是整个插件需要完成的事情，其实是一个系统性的工程。需要在编程期间遵守一定的编程规范。
 
-{{% details title="思路" open=true %}}
-在 build.rs 文件中去修改 main.rs 文件的名称，或者生成一个镜像的 lib.rs 文件。由于 lwext4-thread 和 blk-thread 都基于同样的模块，所以在静态合并的时候会基于同样的模块
-{{% /details %}}
+- 将程序分为 lib.rs 和 main.rs
+- 在 lib.rs 中提供服务的函数
+- 在 main.rs 中提供调用逻辑
+
+![](/monolithic/funcs/code-convention.png)
+
+{{% hint info %}}
+在遵循一定规范后，整个系统的调用就有迹可循，可以在两个 main.rs 中使用 IPC 调用，在 main.rs 中调用 lib.rs 中直接定义的调用函数。
+
+
+一些介绍，如何让一个程序同时作为 Lib 和 main 存在。<https://doc.rust-lang.org/book/ch12-03-improving-error-handling-and-modularity.html#splitting-code-into-a-library-crate>
+{{% /hint %}}
 
 ### 合并初始化的代码
 
 在 Rust 中，初始化的代码通常在 `main.rs` 文件中进行。我们需要将 lwext4-thread 和 blk-thread 中的初始化代码进行合并。由于这两个 crate 都是顶层模块，所以它们的初始化代码是独立的。我们需要将它们的初始化代码进行合并，形成一个新的初始化函数。在原来的独立模块中，他们的名字都是 main 函数，如果不进行处理，就会产生冲突。
 
-{{% details title="思路" open=true %}}
+{{% hint info %}}
   在可以使用 contructor 函数的机制，让程序天然拥有多个入口，当合并之后，就会合并入口。需要为入口添加关系或者优先级，保证合并的时候能够正常初始化依赖。
-{{% /details %}}
+{{% /hint %}}
 
 ### 从函数调用到 IPC 调用
 
@@ -69,22 +79,32 @@ seL4 的 IPC 是一种高效的通信机制，允许不同的线程在同一地�
 
 那么如何无感的将函数调用转换为 IPC 调用呢？
 
-{{% details title="思路" open=true %}}
+{{% hint info %}}
   我们需要将函数分为*定义*和*实现*两部分。函数的定义部分是函数的接口，函数的实现部分是函数的具体实现。我们需要将函数的定义部分和实现部分分开，这样就可以在函数调用的时候让函数调用到伪实现中，从而实现将函数进行转发。
-{{% /details %}}
+{{% /hint %}}
 
 ### 参数的传递
 
 函数调用的参数传递是通过栈来实现的。函数调用的返回值是通过寄存器来实现的。而 IPC 调用的参数传递是通过 IPCBuffer 或*共享内存*来实现的。IPC 调用的返回值也是如此。如何将栈上的数据通过符合*IPC*的方式发送呢？
 
-{{% details title="思路" open=true %}}
+{{% hint info %}}
   我们需要将函数的参数进行序列化，然后通过消息队列进行传递。函数的返回值也需要进行序列化，然后通过消息队列进行传递。可以选择的方案是`rust`中的一个`zerocopy`库。这个库可以将数据进行序列化和反序列化。我们需要将函数的参数进行序列化，然后通过共享内存传输。
-{{% /details %}}
+{{% /hint %}}
 
 ### 需要额外的信息
 
 在函数调用的时候是直接进行调用，只需要知道函数的信息就可以，但是在进行 IPC 调用的时候，我们不仅需要知道函数的信息，同样也需要知道 IPC 的通道，在 sel4 之上，我们还需要知道 IPC 的 Endpoint 和 Capability 的信息。我们需要在初始化的时候创建信息，并在传输的时候使用。
 
-{{% details title="思路" open=true %}}
+{{% hint info %}}
   我们在对函数进行标记的时候，在函数的标记上同时填入一个数字，表示使用哪个域(Domain)，Domain 会在我们附加的模块中定义，这个 Domain 会包含所需要使用到的信息，后续不管什么形式的信息，都可以通过一个数字进行对应。至于这个信息的初始化，则可以通过 Ctor(Contructor) 进行初始化。
-{{% /details %}}
+{{% /hint %}}
+
+### 通道复用的时候如何处理
+
+在 sel4 之上用户态的时候，可能会出现 Endpoint 和 Notification，甚至是多个 Endpoint 复用一个通道，通过 badge 通信，这个时候如何进行区分，如何进行处理是一个问题。
+
+## 技术路线
+
+### 1. 编写程序将从函数调用的 signature 中生成代码
+
+上述的代码我们需要一个工具来实现从函数的定义 signature 中生成特定的代码，将参数和返回结果转换为数据流进行传输。为了方便构建这个模块，我们将这个模块放在一个 crate 中，当函数调用就是直接调用，当是 IPC 调用的时候就是转换为流，然后交给一个特定函数去传输，暂时不考虑复杂环境和 Future 作为参数和返回值。
