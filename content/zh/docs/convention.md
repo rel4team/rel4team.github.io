@@ -17,7 +17,7 @@ title: "reL4 编程公约草案"
 | 类型 / 枚举 / Trait | `CamelCase`            | `HttpRequest`, `Display` |
 | 生命周期标识符      | `'lowercase`           | `'a`, `'static`          |
 | 模块名              | `snake_case`           | `utils`, `io_helper`     |
-| Feature             | `snake_case`           | `smp`, `mcs`, `hava_cpu` |
+| Feature             | `snake_case`           | `smp`, `mcs`, `have_cpu` |
 
 ---
 
