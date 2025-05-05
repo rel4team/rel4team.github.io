@@ -73,3 +73,5 @@ pub fn add(a: i32, b: i32) -> i32 {
 - 对于不需要加锁的场景适当使用抽象，例如启动核专属的变量，就可以使用一个 struct 来定义, e.g. `BootCore<usize>`
 - 对于 `unsafe` 代码进行收集，减少 `unsafe` 代码的分布
 - 减少直接指针的使用，使用一个类型或者抽象进行计算
+- 使用 `cargo clippy` 检测语法的异常
+- 对于确认无误的代码，在 mod 或 crate 上加入 `#[deny(warnings)]` 和 `#[deny(missing_cos)]`，确保后续代码不出现问题
