@@ -1,5 +1,5 @@
 ---
-weight: 3
+weight: 4
 bookCollapseSection: false
 bookFlatSection: true
 title: "reL4的组件化架构设计"
