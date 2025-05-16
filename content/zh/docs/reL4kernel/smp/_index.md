@@ -32,7 +32,7 @@ cd build && ./simulate --cpu-num 4
 ### 移植说明文档
 
 1. [移植的 smp 相关代码](./smp_code.md)
-2. [移植过程遇到的问题和解决思路](./migrate_log.md)
+2. [移植过程遇到的问题和解决思路](./develop_log.md)
 
 
 ### TODOs
