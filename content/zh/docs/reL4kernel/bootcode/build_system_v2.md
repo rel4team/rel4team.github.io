@@ -66,6 +66,8 @@ cargo xtask build -p spike --rust-only
 
 ## 3. 设计说明
 
+![配置系统架构](/bootcode/config_system.png)
+
 ### 3.1 rel4_config 模块
 
 rel4_config 模块主要负责获取 platform 相关的配置，包括内存布局，linker scripts，汇编代码等。这些配置是在编译时就需要的，而不是运行时需要的。

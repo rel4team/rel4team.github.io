@@ -704,4 +704,159 @@ BOOT_CODE static bool_t try_init_kernel_secondary_core(void)
 
 主核会等到所有核心启动完成后，才会完成初始化工作，整个初始化流程结束。
 
+## 7. MCS 相关的移植
+
+### 7.1 MCS Node State 的移植
+
+[MCS](../mcs_support/_index.md) 模式下，会多出一些 node_state，smp 需要将其从一个核心扩展到每个核心，主要是这部分的移植工作。
+
 ```
+#[cfg(feature = "kernel_mcs")]
+pub ksReleaseQueue: tcb_queue_t,
+#[cfg(feature = "kernel_mcs")]
+pub ksConsumed: time_t,
+#[cfg(feature = "kernel_mcs")]
+pub ksCurTime: time_t,
+#[cfg(feature = "kernel_mcs")]
+pub ksReprogram: bool,
+#[cfg(feature = "kernel_mcs")]
+pub ksCurSC: usize,
+#[cfg(feature = "kernel_mcs")]
+pub ksIdleSC: usize,
+
+```
+
+这些改动主要如下，就是把 node_state 从直接引用变为加上 NODE_STATE!()
+
+```
+-    #[cfg(feature = "kernel_mcs")]
+-    unsafe {
+-        ksCurSC = get_currenct_thread().tcbSchedContext;
+-        ksConsumed = 0;
+-        ksReprogram = true;
+-        ksReleaseQueue.head = 0;
+-        ksReleaseQueue.tail = 0;
+-        ksCurTime = timer.get_current_time();
++    #[cfg(feature = "kernel_mcs")] 
++    {
++        SET_NODE_STATE!(ksCurSC = get_currenct_thread().tcbSchedContext);
++        SET_NODE_STATE!(ksConsumed = 0);
++        SET_NODE_STATE!(ksReprogram = true);
++        SET_NODE_STATE!(ksReleaseQueue = tcb_queue_t {head: 0, tail: 0});
++        SET_NODE_STATE!(ksCurTime = timer.get_current_time());
+     }
+```
+
+### 7.2 耦合地方的移植
+
+还有一些地方，条件是 SMP 且 非MCS 模式，这部分在引入 MCS 后需要做特别处理，例如
+
+```
+#[cfg(all(feature = "enable_smp", not(feature = "kernel_mcs")))]
+TCBSetAffinity,
+```
+
+在 MCS 时，这个 message label 是不存在的，因此需要加入上面条件。
+
+还有其他一些类似的地方，搜索这个条件即可找到。
+
+
+## 8. Node State 宏
+
+Node State 使每个 CPU 核心的全局状态，例如任务队列，当前任务等等变量。
+
+单核时，这些变量就是字面意义的全局变量，而多核是，由于每个核心维护一套变量，因此用数组的形式储存。
+
+seL4 中使用 C 的宏定义，可以灵活的在单核和多核中切换，如下
+
+```
+#ifdef ENABLE_SMP_SUPPORT
+#define MODE_NODE_STATE_ON_CORE(_state, _core)  ksSMP[(_core)].cpu.mode._state
+#else
+#define MODE_NODE_STATE_ON_CORE(_state, _core) _state
+
+#define NODE_STATE(_state)         NODE_STATE_ON_CORE(_state, getCurrentCPUIndex())
+```
+
+在 rust 中，无法像 C 的宏定义这么灵活自由，我们用 marco_rules 尽量替代。
+
+我们定义了如下宏规则
+
+```
+#[cfg(feature = "enable_smp")]
+#[macro_export]
+macro_rules! NODE_STATE {
+    ($field:ident) => {
+        unsafe { $crate::ksSMP[sel4_common::utils::cpu_id()].$field }
+    };
+}
+
+#[cfg(not(feature = "enable_smp"))]
+#[macro_export]
+macro_rules! NODE_STATE {
+    ($field:ident) => {
+        unsafe { $crate::$field }
+    };
+}
+
+/// seL4 NODE_STATE_ON_CORE, get the core node state field
+#[cfg(feature = "enable_smp")]
+#[macro_export]
+macro_rules! NODE_STATE_ON_CORE {
+    ($cpu:expr, $field:ident) => {
+        unsafe { $crate::ksSMP[$cpu].$field }
+    };
+}
+
+#[cfg(not(feature = "enable_smp"))]
+#[macro_export]
+macro_rules! NODE_STATE_ON_CORE {
+    ($cpu:expr, $field:ident) => {
+        unsafe { $crate::$field }
+    };
+
+    ($field:ident) => {
+        unsafe { $crate::$field }
+    };
+}
+
+# 由于 rust 中无法像 C 一样，直接替换宏定义，只能多增加 SET 系列宏用于赋值
+/// SET_NODE_STATE, set the core node state field
+#[cfg(feature = "enable_smp")]
+#[macro_export]
+macro_rules! SET_NODE_STATE {
+    ($field:ident = $val:expr) => {
+        unsafe { $crate::ksSMP[sel4_common::utils::cpu_id()].$field = $val; }
+    };
+}
+
+#[cfg(not(feature = "enable_smp"))]
+#[macro_export]
+macro_rules! SET_NODE_STATE {
+    ($field:ident = $val:expr) => {
+        unsafe { $crate::$field = $val; }
+    };
+}
+
+/// SET_NODE_STATE_ON_CORE, set the specific core node state field
+#[cfg(feature = "enable_smp")]
+#[macro_export]
+macro_rules! SET_NODE_STATE_ON_CORE {
+    ($cpu:expr, $field:ident = $val:expr) => {
+        unsafe { $crate::ksSMP[$cpu].$field = $val; }
+    };
+}
+
+#[cfg(not(feature = "enable_smp"))]
+#[macro_export]
+macro_rules! SET_NODE_STATE_ON_CORE {
+    ($cpu:expr, $field:ident = $val:expr) => {
+        unsafe { $crate::$field = $val; }
+    };
+
+    ($field:ident = $val:expr) => {
+        unsafe { $crate::$field = $val; }
+    };
+}
+```
+
