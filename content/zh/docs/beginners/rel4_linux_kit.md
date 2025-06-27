@@ -41,7 +41,7 @@ reL4-Linux-Kit 目前提供以下组件。
 
 其中 root task 和 kernel thread 需要重点介绍下，其他服务比较容易理解。
 
-## 2.1 root_task
+### 2.1 root_task
 
 root_task 是系统的初始任务，内核态在初始化完成后，会创建 root_task 并将所有资源 (内存，中断等) 交给 root_task 管理
 
@@ -59,7 +59,7 @@ root_task 会根据配置创建其他服务进程，给他们分配初始资源�
 
 - Alloc Page: 向 root_task 申请一个物理页，并且映射到指定的虚拟地址
 
-## 2.2 kernel task
+### 2.2 kernel task
 
 顾名思义，kernel task 是一个宏内核的用户态实现，补齐 seL4 微内核不具备的内核功能。其最大的功能是创造了一个可以运行 Linux 应用的运行时环境。
 

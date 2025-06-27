@@ -488,7 +488,22 @@ fn set_transfer_caps(
 }
 ```
 
-# 5 capability 创建
+## 5 capability 创建
+
+### 5.1 untyped 能力
+
+所有内核对象占用的内存地址都由 untyped 能力分配而来。elf-loader 初始化的时候，会把所有可用的物理内存空间都映射到虚拟地址空间，也就是说，内核始终都可以访问所有的物理内存空间。
+
+kernel 使用的内存区域使用 fixed offset map，虚实地址之间是一个固定的 offset，因此转换非常方便。基本可以理解为，内核始终可以访问所有的物理内存。
+
+在初始化完成后，kernel 会把所有的还未用到的内存区域打包为 untyped 能力，其实就是存储了起始地址和可用长度。是不是感觉有点熟悉了，和我们常用的 physical memory allocator 很像，基本可以按照 allocator 来理解。
+
+seL4 文档中还提到，untyped 是一种能力，分配给用户态。这里有一点值得强调，kernel 只是告诉用户态任务，你有一段可以分配的 **物理内存** ，你可以从其中 **new** 新的对象。但是
+
+1. 这段内存不映射到用户地址空间，而是在 kernel 地址空间，只有 kernel 可以访问
+2. 用户态不知道这这段空间有多大，起始地址是什么。它只能告诉内核，我要从这段内存中生成一个新的对象，仅此而已
+
+### 5.2 capability 创建过程
 
 上述详细介绍了 capability 使用和流转的过程，现在最后介绍下 capability 创建的过程。前面说到，capability 可以理解成一个智能指针。那么创建的过程相当于
 
@@ -628,4 +643,54 @@ pub fn decode_untyed_invocation(
         device_mem as usize,
     )
 }
+
+pub fn invoke_untyped_retype(
+    src_slot: &mut cte_t,
+    reset: bool,
+    retype_base: pptr_t,
+    new_type: ObjectType,
+    user_size: usize,
+    dest_cnode: &mut cte_t,
+    dest_offset: usize,
+    dest_length: usize,
+    device_mem: usize,
+) -> exception_t {
+    // 获取 untyped 区域的起始地址，untyped 区域就是一段目前还没有用到，没有对象占用的内存区域
+    let region_base = cap::cap_untyped_cap(&src_slot.capability).get_capPtr() as usize;
+    // 创建对象的大小，注意这里是指总大小，如果创建多个对象，那么是加起来的
+    // get_object_size 会返回创建对象的大小，根据对象类型和用户态提供的大小产生，page_table 就是 4KiB
+    let total_object_size = dest_length << new_type.get_object_size(user_size);
+    let free_ref = retype_base + total_object_size;
+    // 在 untyped 类型上做个标记，已经被占用了
+    // 这个时候可以理解为，对象本身已经 new 完了，后面就是创建 cptr 的过程了
+    cap::cap_untyped_cap(&src_slot.capability)
+        .set_capFreeIndex(GET_FREE_INDEX(region_base, free_ref) as u64);
+    // 本质是创建 cptr，这里是创建 cap_page_table, 并且加到 cspace 中，就不展开了
+    create_new_objects(
+        new_type,
+        src_slot,
+        dest_cnode,
+        dest_offset,
+        dest_length,
+        retype_base,
+        user_size,
+        device_mem,
+    );
+    exception_t::EXCEPTION_NONE
+}
+
+pub fn arch_create_object() {
+    ...
+    // 这里创建 page_table cptr
+    ObjectType::seL4_ARM_PageTableObject => {
+        cap_page_table_cap::new(ASID_INVALID as u64, region_base as u64, 0, 0).unsplay()
+    }
+}
+
 ```
+
+通过上述流程分析，可以看出，创建 capability 其实分两步
+
+第一步，类似于 new，从 untyped 能力中获取一段内存空间，创建一个内核对象
+
+第二步，创造一个 cptr 把对象包装起来，主要就是存对象地址和一些关键信息。然后把 cptr 插到某个 cslot 中，这样通过 capability 寻址就可以找到这个 cptr，相当于找到了对象实例指针，就可以用它了。
