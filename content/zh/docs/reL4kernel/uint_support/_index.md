@@ -275,4 +275,31 @@ pub struct UIntrReceiver {
 
 该数组的起始地址UINTC_BASE会被写入suicfg寄存器
 
+## UINTC
+见 https://gallium70.github.io/rv-n-ext-impl/ch2_4_software_interrupt_and_uintc.html
+这一章节
 
+提供了enable和pending的矩阵。并通过内存映射的方式，进行了映射
+
+需要操作系统根据实际需要动态维护enable和pending的矩阵，来完成可以收发的状态
+
+发送方提供了
+ - sender_uiid记录发送方的uiid
+ - send写入接收方的uiid
+ - status表示发送状态
+接收方提供了
+ - receiver_uiid
+ - claim
+还有
+ - listen监听寄存器
+
+从0x0到0x00001FFC都是监听寄存器
+
+额，UINTC的具体寄存器还是见文档吧。感觉廖的实现并未充分利用起来所有的寄存器
+
+## TODO
+1.找到寄存器相关手册，弄清楚上述文档跟廖的实现中寄存器上的一些疑问
+2.根据UINTC的寄存器相关内容，重新设计rel4对用户态中断的使用。包括如下内容：
+ - rel4的capability的使用，目前廖的实现是改了一下sel4的ntfn的cap。
+ - 同时，他也会侵入式的修改进入内核和离开内核的路径，在上面加入用户态中断的内容，这部分需要重新思考是否可以按照fpu的使用来进行懒惰式的使用。
+ - 另外，现有的代码和rcore-N的uintc的文档并不完全一致（见1），如果有需要，可能需要做更多的修改
