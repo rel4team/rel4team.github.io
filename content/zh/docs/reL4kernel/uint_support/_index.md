@@ -86,7 +86,8 @@ N扩展还需要考虑各类外设中断，CLIC扩展是支持这个的
  - 其他
  另外，在廖的实现中，还有三个寄存器，suicfg（0x1B2），suirs（0x1B1），suist（0x1B0）
  我不太确定这几个寄存器的具体功能（TODO）
-
+ 根据后面的代码来看，suicfg会写入用户态中断的相关向量。
+而rs和st应该分别是收和发
 
 
 ### 其他代码
@@ -103,11 +104,34 @@ restore
 ```
 crate::uintc::uintr_return();
 ```
+这个函数的实现为
 
-进入的时候需要
+```
+pub fn uintr_return() {Add commentMore actions
+    unsafe {
+        // for receiver
+        uirs_restore();
+
+        // for sender
+        uist_init();
+    }
+}
+```
+uirs是receiver的restore
+uist是sender的，但是这里是初始化
+
+uirs_restore包括以下操作
+获取对应的ntfn，然后如果判断ntfn判断有用户态中断，就从中获取index并得到对应的UIntrReceiver的entry
+
+进入的时候需要构造一个uirs
+
+并设置好相应的寄存器的值再返回用户态。
+
+
 ```
 crate::uintc::uintr_save();
 ```
+对于uintr save的实现，只是简单的保存uepc
 
 在decode invocation中对Notification的cap的处理，也增加了
 ```
@@ -178,7 +202,77 @@ pub struct uintr_tcb_inner {
 #### 常量
 这部分需要在rel4 config中去增加,不过也不绝对，上述是基于原先廖的设计的代码
 
+#### index allocator
 
+廖设置了一个IndexAllocator的结构体，使用bitmap，去寻找没有被使用的index
 
+对于该结构体的使用，廖使用了uintr recv的allocator和uintr的st pool的allocator
+我认为这就是用来设置index的
+
+#### UintrSTEntry
+从语义上来说，他定义了一个u64的entry。
+
+并且存在读写sender和receiver的index的方法。
+
+从实现上来看，应该是
+
+63:48位，存放receiver的index
+
+31:16位，存放sender的index
+
+#### UIntrReceiver
+这个定义的结构体是这样的
+
+```
+More actions
+#[repr(C)]
+#[derive(Debug)]
+pub struct UIntrReceiver {
+    /// Kernel defined architecture mode and valid bit.
+    mode: u16,
+
+    /// The integer ID of the hardware thread running the code.
+    hartid: u16,
+
+    /// Reserved bits.
+    _reserved: u32,
+
+    /// One bit for each user interrupt vector. There is user-interrupt request for a vector if the corresponding bit is 1.
+    irq: u64,
+}
+```
+从实现来看，主要是irq字段，廖看上去设定了64个具体的中断号，并用每一位来表明对应的中断号存在中断。
+
+至于内容的读取
+```
+/// Gets a [`UIntrReceiver`] from UINTC by index.Add commentMore actions
+    pub fn from(index: usize) -> Self {
+        assert!(index < UINTC_ENTRY_NUM);
+        let low = uintc_read_low(index);
+        let high = uintc_read_high(index);
+        Self {
+            mode: low as u16,
+            hartid: (low >> 16) as u16,
+            _reserved: 0,
+            irq: high,
+        }
+    }
+```
+也就是说，低32位的低16位是作为mode传递的，而高16位作为hartid
+
+高32位作为irq号来传递的。
+
+对于uintc_read_low和high
+
+看上去廖在UINTC_BASE开始的一段内存中，设置了uintc的数据结构，应当是以一个数组的形式
+
+数组的每个元素，包含32位
+
+0-7存放了uintc send
+8-15存放了uintc low
+16-23存放了uintc high
+24-32存放了uintc act
+
+该数组的起始地址UINTC_BASE会被写入suicfg寄存器
 
 
