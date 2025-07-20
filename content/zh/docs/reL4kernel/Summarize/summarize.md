@@ -11,7 +11,32 @@ weight: 1
 
 # reL4项目总结
 
-## 1 seL4内核实现概述
+## 1 seL4内核概述
+### 基于capability的内核对象抽象
+
+在一个操作系统内核中,几乎所有的操作都是在不断地跟各类内核对象进行交互。但是直接使用内核对象的地址访问该内核对象存在安全问题,因此出现了使用句柄(handler)等方式访问内核对象的设计,seL4也同样采用了这样的设计思路。不同的是,seL4作为一个微内核,可以通过精巧的设计,将内核对象数量限定为有限的若干种,并通过抽象,将内核对象相关的重要信息封装在一个称为capability的,固定为128bits大小的句柄中。
+
+seL4通过capability机制对内核对象进行统一的抽象,并通过一个集合了所有的capability的cspace对内核中的所有内核对象进行管理。
+
+对于cspace的结构,可以类比于页表。在cspace的顶层,包含了2^redix个slot构成的array用于存放capability,每个slot大小128bits,和capability大小一样。在顶层cspace中的某些slot,也可以存放一些cnode,即用于表示二级或者更深级数的cspace的capability。
+
+cspace通过一个cptr来指定某个slot,并找到其中存放的capability。这个cptr类似于页表中的虚拟地址,用于描述slot的地址。但是正如前面所述,这不是一个真实的内核对象的地址。这个cptr会通过guard bits和redix进行层级切分。其中guard bits是用于判断是否跟当前的cspace相符的一个判定,而redix正如前文所述,用于指明该层的slot array中包含多少个slots。
+
+例如一个32位的cptr,如果第一层的guard占用了4个bits,redix占用了8个bits。那么最高的12个bits会被用于访问最顶层的slot array,该array具有2^8=256个slots。如果这个cptr最高的4位为0,剩余的低20位都是0,在最高4位后面跟着的8位所指出的那个slot处存放着查找到的目标slot,如果该slot不是一个cnode的capability,那么就认为找到了。如果并非如此,即可以向下查找,那么就查看第二层的guard bits和redix。如果同样是4个bits的guard和8个bits的redix,会继续匹配剩余20位中最高4位表示的guard是否都为0,再之后的8位用于查找slot,最后的20-12=8位如果为0,且该slot不为cnode,就认为找到了,如果不是就继续。以此类推。
+
+除了通过cspace来进行capability的管理之外,seL4也维护了capability之间的关系,除了创建,销毁之外,还有Mint(从某个capability继承全部或者部分权限),Copy,Move,Revoke(不仅删除自己,还删除所有派生出去的capapbility)等更为复杂的capability操作。
+
+capability系统让seL4对所有内核对象有了非常灵活的管理。
+
+### seL4的地址空间管理
+
+
+
+### seL4的IPC
+
+### seL4的系统启动
+
+### seL4的中断和外设
 
 ## 2 使用Rust语言重写seL4——reL4内核的实现
 ### reL4项目概述
