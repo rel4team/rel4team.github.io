@@ -1,5 +1,5 @@
 ---
-weight: 1
+weight: 2
 title: "架构设计"
 commentsId: 1 
 ---

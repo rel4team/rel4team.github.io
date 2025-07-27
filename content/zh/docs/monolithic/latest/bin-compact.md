@@ -198,7 +198,7 @@ tar zxf aarch64-linux-musl-cross.tgz
 rm aarch64-linux-musl-cross.tgz
 export PATH=$PATH:`pwd`/aarch64-linux-musl-cross/bin
 ```
-### 编译测试程序并运行
+### 编译修改 elf 文件
 
 您可以直接使用我们在 `examples/linux-apps` 下的测例，这里我们使用 `sigtest` 测例。
 
@@ -207,14 +207,47 @@ export PATH=$PATH:`pwd`/aarch64-linux-musl-cross/bin
 make -C examples/linux-apps/sigtest
 # 修改可执行文件的系统调用指令
 ./tools/ins_modify.py examples/linux-apps/sigtest/main.elf .env/busybox-ins.elf
-# 运行测试
-make run
 ```
 
 这里为什么是 `.env/busybox-ins.elf` 文件，目前这个版本我们还没有完善支持文件系统，所以可执行文件暂时内联，直接被打包进内核运行，而 `.env/busybox-ins.elf` 就是我们默认的内联文件名称。
 
 在执行之后我们就能看到运行结果。
 
+### 动态二进制兼容
+
+上述的 python 脚本能够实现对于一个 elf 文件的修改，这种方式需要提前在宿主机上修改 elf 文件，流程增多，因此在 rel4-linux-kit 上基于上述原理实现了在 rust 代码中 load_elf 阶段对 syscall 执行的修改。
+
+```rust
+    /// 加载一个 elf 文件到当前任务的地址空间
+    ///
+    /// - `elf_data` 是 elf 文件的数据
+    pub fn load_elf(&self, file: &File<'_>) {
+        // 加载程序到内存
+        file.sections()
+            .filter(|x| x.name() == Ok(".text"))
+            .for_each(|sec| {
+                #[cfg(target_arch = "aarch64")]
+                {
+                    const SVC_INST: u32 = 0xd4000001;
+                    const ERR_INST: u32 = 0xdeadbeef;
+                    let data = sec.data().unwrap();
+                    let ptr = data.as_ptr() as *mut u32;
+                    for i in 0..sec.size() as usize / size_of::<u32>() {
+                        unsafe {
+                            if ptr.add(i).read() == SVC_INST {
+                                ptr.add(i).write_volatile(ERR_INST);
+                            }
+                        }
+                    }
+                }
+                #[cfg(not(target_arch = "aarch64"))]
+                log::warn!("Modify Syscall Instruction Not Supported For This Arch.");
+            });
+    ...
+}
+```
+
+上述代码实现了在加载 elf 文件的时候查询 svc 指令并将 svc 指令修改为一条错误指令。
 
 # 引用链接
 

@@ -7,7 +7,7 @@ commentsId: 1
 
 # Cap 方式内存管理
 
-要说 Cap 管理就不得不说 [Slot管理]({{< ref "/docs/monolithic/latest/slot-manager.md" >}}) 
+要说 Cap 管理就不得不说 [Slot管理]({{< ref "/docs/monolithic/common/slot-manager.md" >}}) 
 
 ## sel4 的内存管理方式
 
