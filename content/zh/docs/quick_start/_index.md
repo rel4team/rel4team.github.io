@@ -26,6 +26,7 @@ rel4项目目前存在的构建和测试需求如下：
 # 首先在本地环境中下载相关仓库
 # 如果只运行不进行push，下面repo init的链接可以改成https://github.com/reL4team2/rel4-dev-repo.git，否则您需要具有该仓库的权限
 mkdir rel4_dev && cd rel4_dev
+# 后面的--repo-url参数是出于网络原因，转而使用清华源，但清华源也偶尔存在无法访问问题，可以考虑使用科学上网不带该参数，或者找其他镜像源
 repo init -u git@github.com:rel4team2/rel4-dev-repo.git --repo-url=https://mirrors.tuna.tsinghua.edu.cn/git/git-repo/
 repo sync
 
