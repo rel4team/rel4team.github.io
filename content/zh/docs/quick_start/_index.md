@@ -48,6 +48,7 @@ docker exec -u ${USER} -it rel4_dev bash
 cd rel4_kernel
 
 # 参数根据上面的内容进行选择，以下仅为几个例子
+# (下面这个例子中的-s on其实没用，因为并不是arm平台下，只是为了证明代码的健壮性)
 cargo xtask build -p spike -m off -s on&& cd build && ./simulate && cd ..
 
 # 使用smp的例子
