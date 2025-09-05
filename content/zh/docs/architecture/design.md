@@ -1,5 +1,5 @@
 ---
-weight: 1
+weight: 2
 title: '组件化微内核系统设计方案'
 commentsId: 1 
 ---
