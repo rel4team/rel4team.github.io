@@ -90,9 +90,9 @@ reL4-Linux-kit的设计目标为兼容现有的部分Linux用户态程序，但�
 
 seL4bench中单向IPC性能测试涉及到的syscall包括：SYS_CALL、SYS_SEND、SYS_REPLY_RECV这三个syscall。在该测试中的相关测试还对比了IPC的两个线程是否在同一个地址空间下，以及不同IPC消息长度下的差别。
 
-![](benchmark/one_way_ipc_figure_1_bar_chart.png)
-![](benchmark/one_way_ipc_figure_2_bar_chart.png)
-![](benchmark/one_way_ipc_figure_3_bar_chart.png)
+![](/benchmark/one_way_ipc_figure_1_bar_chart.png)
+![](/benchmark/one_way_ipc_figure_2_bar_chart.png)
+![](/benchmark/one_way_ipc_figure_3_bar_chart.png)
 
 测试结果揭示了以下现象：reL4在各个场景下都缺少IPC的优化，采用了统一的syscall的路径；在seL4下的同一地址空间的IPC具有良好的优化，其开销的Cycles为reL4下同样One Way IPC的五分之一左右；在不同地址空间下，同样为0B长度的IPC消息发送，不同的syscall接口也展现出了不同的性能；在长度为10B的IPC消息发送中，reL4和seL4虽然仍然存在一些性能上的差异，但是差异不大。
 
@@ -102,7 +102,7 @@ seL4bench中单向IPC性能测试涉及到的syscall包括：SYS_CALL、SYS_SEND
 
 对于reL4和seL4的中断相关性能的对比测试结果表明：seL4的irq，无论是否存在context switch，其波动范围都较小，具有很好的稳定性。reL4的irq稳定性则远不如seL4，其波动范围更大，极值发生概率更高，但是其均值在存在context switch和无context switch的两种情况下，基本相近，可以认为其出现了跟前一节同样的缺少优化的现象。
 
-![](benchmark/irq_performance_comparison.png)
+![](/benchmark/irq_performance_comparison.png)
 
 值得注意的是，在所有其他的测试中，均能表明reL4目前的实现，性能相比seL4存在一定的差距，但是，在本测试中，存在context switch的情形下，seL4进行IRQ处理需要的Cycles比reL4进行IRQ处理需要的Cycles更多。
 
@@ -110,8 +110,8 @@ seL4bench中单向IPC性能测试涉及到的syscall包括：SYS_CALL、SYS_SEND
 
 ### 3.3 信号相关测试
 
-![](benchmark/signal_high_prio_comparison.png)
-![](benchmark/signal_low_prio_comparison.png)
+![](/benchmark/signal_high_prio_comparison.png)
+![](/benchmark/signal_low_prio_comparison.png)
 
 信号机制同样是seL4下重要的消息发送机制，对于信号相关测试的结果表明：在向高优先级进程发送信号的时候，平均延迟的Cycles呈现出了急剧的增长。在这两个测试结果中，seL4下的测试结果均展现出了很好的稳定性和比reL4更好的性能。
 
@@ -119,7 +119,7 @@ seL4bench中单向IPC性能测试涉及到的syscall包括：SYS_CALL、SYS_SEND
 
 同步相关测试主要目的是为了测试通过seL4/reL4的通信机制实现消息同步所带来的开销，相比于单纯的One Way IPC性能，该测试提供了更加全面的系统消息传递开销评估。
 
-![](benchmark/wait_time_line_chart.png)
+![](/benchmark/wait_time_line_chart.png)
 
 从测试结果来看，随着消息等待者的数量增长，在reL4和seL4下的平均等待时间均呈现下降趋势。随着消息等待者的数量上升，整体的消息发送和接收的时间一定是增长的，因为更多的消息需要发送和接收。而每个消息接收者存在从发送消息之后，到被调度出来的时延，因此在消息接收者数量少的时候，消息接收者必须等待其他进程被调度出来并执行，这增加了其时延。当消息接收者数量多的时候，一个消息接收者接收到消息之后，下一次调度的进程依然是一个消息接收者，因此其平均接收时间一定会逐步下降。
 
@@ -129,7 +129,7 @@ seL4bench中单向IPC性能测试涉及到的syscall包括：SYS_CALL、SYS_SEND
 
 映射相关测试主要针对于系统的内存映射性能的评估，测试项目包括：Prepare Page Tables、Allocate Pages Mapping、Mapping、Propect Pages as Read Only、Unprotect Pages。
 
-![](benchmark/mapping_benchmark_grid_large.png)
+![](/benchmark/mapping_benchmark_grid_large.png)
 
 从测试结果来看，reL4和seL4之间表现出来的性能行为基本一致，基本可以说明，reL4在功能上可以对标seL4内核，但是存在一个性能gap（请注意坐标轴为对数坐标轴），这在几乎所有的测试中都是存在的。考虑到之前的分析，这样的性能差距是可以理解的，并且是系统性的差距。
 
