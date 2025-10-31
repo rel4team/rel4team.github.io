@@ -20,7 +20,7 @@ rel4项目目前存在的构建和测试需求如下：
  - 以特定的配置参数运行我们编写的基于rel4内核和reL4-Linux-kit兼容层的[用户态程序](./monolithic_kernel_test)。
  - 使用特定的reL4内核和用户态程序进行联合构建运行
 
-#### reL4测试seL4原生测例
+#### reL4测试seL4原生测例sel4test
 在reL4中进行seL4原生测例主要用于内核开发过程中通过各个测例，本项目维护了一个docker环境，来提供稳定的开发环境。
 ```
 # 首先在本地环境中下载相关仓库
@@ -119,3 +119,11 @@ Options:
 rel4-cli install kernel --bin --local ${YOUR_REL4_INTEGRAL_PATH}
 ```
 即可在自定义的reL4内核上运行用户态测例。
+
+#### 使用reL4进行原生seL4bench测试
+
+其他基本流程和使用sel4test基本一致，只是在具体的命令上需要改为
+
+```
+cargo xtask build -p qemu-arm-virt --arm-ptmr --arm-pcnt --benchmark && cd build && qemu-system-aarch64 -machine virt -cpu cortex-a53 -nographic -smp 1 -m 1024 -kernel images/sel4benchapp-image-arm-qemu-arm-virt && cd ..
+```
