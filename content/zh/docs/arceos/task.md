@@ -60,7 +60,29 @@ pub struct NormalTask {
 }
 ```
 
-### 3.2 任务创建
+### 3.2 任务服务
+
+所有任务操作都由管理任务执行，其提供以下任务服务
+
+```
+/// 定义服务事件枚举
+#[derive(Debug, IntoPrimitive, TryFromPrimitive)]
+#[repr(u64)]
+pub enum ServiceEvent {
+    /// 创建任务
+    CreateTask = 0x1000,
+    /// 切换任务
+    SwitchTask,
+    /// 退出任务
+    ExitTask,
+    /// 退出系统
+    ExitSystem,
+    /// 迁移任务
+    MigrateTask,
+}
+```
+
+### 3.3 任务创建
 
 任务创建是一个固定的过程，对于子任务来说，创建时已经申请了其所有需要的能力，运行时不需要再申请其他能力。
 
@@ -149,18 +171,134 @@ pub struct NormalTask {
     tcb.tcb_set_affinity(cpu_id as _)?;
 ```
 
-### 3.3 任务调度
+### 3.4 任务调度
 
-### 3.4 任务迁移
+通常在 kernel 中，任务调度通过上下文切换实现。但是目前设计中，每个 ArceOS 任务都是一个 seL4 任务，所以只能通过 seL4 kernel 切换任务。
 
-### 3.5 任务退出
+普通任务由于无法访问下一个任务的 tcb，所以需要请求管理任务进行任务切换。切换的实现如下，基本就是 suspend 上一个，resume 下一个任务。
 
-### 3.6 多核支持
+```
+pub fn switch_sel4_task(prev_tid: usize, next_tid: usize) {
+    if let Some(t) = TASK_MAP.lock().get(&prev_tid) {
+        // t.lock().suspend().unwrap();
+        // 这里是比较重要的设计，将 pc 往下移到下一个指令，类似 kernel 中处理 syscall 的操作
+        // 如果不这么做，子任务始终会不停的发送 IPC 请求，就像一直发送 ecall 一样
+        t.lock().add_pc_offset(4).unwrap();
+    }
+
+    if let Some(t) = TASK_MAP.lock().get(&next_tid) {
+        t.lock().start().unwrap();
+    }
+}
+```
+
+### 3.5 任务迁移
+
+多核系统中，涉及到任务在不同核心上迁移，借助 seL4 设置亲和性 syscall 实现。
+
+任务迁移分为两步，首先当 ArceOS 执行核心迁移操作时，在 NormalTask 中增加一个 flag，告知该任务需要迁移。
+
+等到下一次启动该任务时，会对该任务执行真正的迁移操作，如下实现
+
+```
+pub fn migrate(&mut self, target: usize) -> sel4::Result<()> {
+    if self.affinity == target {
+        return Ok(());
+    }
+
+    // 设置亲和性，迁移标志位
+    self.affinity = target;
+    self.migrate = true;
+
+    Ok(())
+}
+
+pub fn start(&mut self) -> sel4::Result<()> {
+    if self.migrate {
+        // 将父任务的 Endpoint 改成当前核心的管理任务
+        // 先删除 DEFAULT_PARENT_EP
+        sel4::init_thread::slot::CNODE
+            .cap()
+            .absolute_cptr_from_bits_with_depth(
+                (self.cnode_index << 12) as u64 + DEFAULT_PARENT_EP.bits(),
+                64,
+            )
+            .delete()?;
+
+        // 将当前核心管理任务 DEFAULT_PARENT_EP mint 到当前子任务
+        sel4::init_thread::slot::CNODE
+            .cap()
+            .absolute_cptr_from_bits_with_depth(
+                (self.cnode_index << 12) as u64 + DEFAULT_PARENT_EP.bits(),
+                64,
+            )
+            .mint(
+                &LeafSlot::from(DEFAULT_SERVE_EP).abs_cptr(),
+                CapRights::all(),
+                self.tid as _,
+            )?;
+
+        let tcb = LeafSlot::new((self.cnode_index << CNODE_RADIX_BITS) + 1).cap();
+        let mut regs = tcb.tcb_read_all_registers(true).unwrap();
+
+        // 修改 percpu 到当前核心
+        *regs.gpr_mut(28) = percpu::percpu_area_base(self.affinity) as _;
+
+        // 修改任务 cpu 亲和性
+        tcb.tcb_write_all_registers(false, &mut regs).unwrap();
+        tcb.tcb_set_affinity(self.affinity as _).unwrap();
+
+        self.migrate = false;
+    }
+
+```
+
+### 3.6 任务退出
+
+退出时需要仔细的处理资源回收，如下
+
+```
+pub fn exit(&self) {
+    // 回收所有能力到 untyped 能力
+    self.capset.drop().unwrap();
+    // 回收 ipc buffer
+    dealloc_ipc_buffer(self.ipc_buffer_addr);
+    // 删除子任务 root cnode
+    for i in 0..axconfig::plat::CPU_NUM {
+        let _ = LeafSlot::new(0x90 + i)
+            .cap()
+            .absolute_cptr_from_bits_with_depth(self.cnode_index as _, 52)
+            .revoke();
+
+        let _ = LeafSlot::new(0x90 + i)
+            .cap()
+            .absolute_cptr_from_bits_with_depth(self.cnode_index as _, 52)
+            .delete();
+    }
+    // 回收空白的 untyped 能力
+    recycle_untyped(self.untyped, self.created_cpu);
+    // 回收分配的 cnode_index
+    TASK_CSPACE_ALLOCATOR.lock().recycle(self.cnode_index);
+}
+```
 
 ### 3.7 ArceOS 适配
+
+ArceOS 中的适配，主要是在创建，切换等过程中需要 seL4 任务的支持。比如创建任务的时候，需要同时创建一个 seL4 任务对象，供切换时使用。
+
+如上所说，所有操作都是需要发送 IPC 请求给管理任务，为了简化 IPC，使用 task_id 代表 NormalTask 实例。同时管理任务中会使用 map 建立 task_id 和 NormalTask 的映射关系，这样管理任务就可以通过 task_id 找到对应的 NormalTask 实例进行操作。
+
+```
+pub fn start_sel4_task(tid: usize) {
+    // 从 map 中根据 tid 找到对应实例
+    if let Some(t) = TASK_MAP.lock().get(&tid) {
+        t.lock().start().unwrap();
+    }
+}
+```
 
 ## 4. 讨论
 
 1. 当前每个 arceos 任务对应一个 seL4 任务，这样设计的好处是简单直接，缺点是每个任务都有独立的内核栈和 TCB，资源开销较大。如果需要优化，可以考虑将多个 arceos 任务映射到同一个 seL4 任务中，通过用户态线程库实现任务切换和调度，从而减少内核资源的消耗。
 
-2. 任务调度完全依赖于 seL4 的 suspend 和 resume 操作，这样设计的好处是利用了 seL4 已经验证过的调度机制，缺点是多次 syscall 开销较大，也许有可探索的更加方案。
+2. 任务调度完全依赖于 seL4 的 suspend 和 resume 操作，这样设计的好处是利用了 seL4 已经验证过的调度机制，缺点是多次 syscall 开销较大，也许有可探索的更加方案。比如事先将优先级排好，如果没有特别情况，直接让出当前任务，也许可以自动切换到下一个准备好的任务。
