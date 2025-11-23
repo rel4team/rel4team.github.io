@@ -1,12 +1,8 @@
 ---
+weight: 15
+bookCollapseSection: false
+bookFlatSection: true
 title: "Arceos 移植"
-weight: 1
-# bookFlatSection: false
-# bookToc: true
-# bookHidden: false
-# bookCollapseSection: false
-# bookComments: false
-# bookSearchExclude: false
 ---
 
 ## 1. 简介

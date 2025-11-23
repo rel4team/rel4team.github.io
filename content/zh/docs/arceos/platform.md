@@ -1,5 +1,5 @@
 ---
-title: "Platform"
+title: "Arceos 中 seL4 硬件平台实现"
 weight: 1
 # bookFlatSection: false
 # bookToc: true
